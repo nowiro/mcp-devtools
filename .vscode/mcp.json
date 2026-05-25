@@ -1,0 +1,64 @@
+{
+  "$schema": "https://aka.ms/vscode-mcp.schema.json",
+  "comment": "VS Code 1.121+ native MCP registry. Registers this devtools server (always available) plus the five mcp-alm connectors (path is asked once per workspace through the `mcp-alm-path` input). Default assumes mcp-alm cloned as a sibling: <workspace>/../mcp-alm. Works on Windows, macOS, Linux — VS Code resolves both forward and backslash separators.",
+  "inputs": [
+    {
+      "id": "mcp-alm-path",
+      "type": "promptString",
+      "description": "Absolute path to your mcp-alm clone (built — must contain dist/server-*.js). Leave empty to skip mcp-alm registration. Default: <workspace>/../mcp-alm.",
+      "default": "${workspaceFolder}/../mcp-alm"
+    },
+    {
+      "id": "mcp-alm-write-enabled",
+      "type": "pickString",
+      "description": "Enable mutating tools in mcp-alm (create_issue, add_comment, …) for this workspace?",
+      "options": ["false", "true"],
+      "default": "false"
+    }
+  ],
+  "servers": {
+    "devtools": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["${workspaceFolder}/dist/server.js"],
+      "env": {
+        "PROJECT_ROOT": "${workspaceFolder}",
+        "LOG_LEVEL": "info"
+      }
+    },
+    "alm-jira": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["${input:mcp-alm-path}/dist/server-jira.js"],
+      "env": {
+        "MCP_WRITE_ENABLED": "${input:mcp-alm-write-enabled}"
+      }
+    },
+    "alm-confluence": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["${input:mcp-alm-path}/dist/server-confluence.js"],
+      "env": {
+        "MCP_WRITE_ENABLED": "${input:mcp-alm-write-enabled}"
+      }
+    },
+    "alm-figma": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["${input:mcp-alm-path}/dist/server-figma.js"]
+    },
+    "alm-sonar": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["${input:mcp-alm-path}/dist/server-sonar.js"]
+    },
+    "alm-gitlab": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["${input:mcp-alm-path}/dist/server-gitlab.js"],
+      "env": {
+        "MCP_WRITE_ENABLED": "${input:mcp-alm-write-enabled}"
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+# CODEOWNERS — mcp-devtools
+# Every PR requires at least one code owner review.
+
+# Default — all files
+*                                    @maintainers
+
+# Copilot rules — extra review
+.github/instructions/                @maintainers
+.github/prompts/                     @maintainers
+
+# CI / security
+.github/workflows/                   @maintainers
+src/server.ts                        @maintainers
+SECURITY.md                          @maintainers
+
+# Dependency manifests
+package.json                         @maintainers
+package-lock.json                    @maintainers

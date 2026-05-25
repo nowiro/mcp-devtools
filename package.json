@@ -1,0 +1,101 @@
+{
+  "name": "mcp-devtools",
+  "version": "0.3.0",
+  "private": true,
+  "type": "module",
+  "description": "MCP server with developer-workflow tools (analyze_code, propose_fix, run_playwright, compliance_report). Multi-framework (Angular / React / Vue auto-detect). Cross-platform — Windows / macOS / Linux. Compatible with GitHub Copilot in VS Code >= 1.121 and IntelliJ IDEA >= 2026.1.2.",
+  "license": "MIT",
+  "homepage": "https://github.com/<your-org>/mcp-devtools#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/<your-org>/mcp-devtools.git"
+  },
+  "bugs": {
+    "url": "https://github.com/<your-org>/mcp-devtools/issues"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "github-copilot",
+    "copilot",
+    "developer-tools",
+    "static-analysis",
+    "playwright",
+    "compliance",
+    "typescript",
+    "angular",
+    "react",
+    "vue"
+  ],
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "os": [
+    "darwin",
+    "linux",
+    "win32"
+  ],
+  "bin": {
+    "mcp-devtools": "./dist/server.js",
+    "mcp-devtools-cdk": "./dist/cli/mcp-devtools-cdk.js"
+  },
+  "scripts": {
+    "prepare": "husky",
+    "bootstrap": "node tools/scripts/bootstrap.mjs",
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write \"**/*.{ts,json,md,yml,yaml}\"",
+    "format:check": "prettier --check \"**/*.{ts,json,md,yml,yaml}\"",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:cov": "vitest run --coverage",
+    "start": "node dist/server.js",
+    "commit": "cz",
+    "doctor": "node tools/scripts/doctor.mjs",
+    "cdk:compile": "node dist/cli/mcp-devtools-cdk.js compile",
+    "verify": "npm run format:check && npm run lint && npm run typecheck && npm test && npm run build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "handlebars": "^4.7.8",
+    "zod": "^4.4.3",
+    "zod-to-json-schema": "^3.25.2"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^21.0.1",
+    "@commitlint/config-conventional": "^21.0.1",
+    "@commitlint/types": "^21.0.0",
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.60.0",
+    "@types/node": "^22.10.0",
+    "@typescript-eslint/eslint-plugin": "^8.59.4",
+    "@typescript-eslint/parser": "^8.59.4",
+    "@vitest/coverage-v8": "^4.1.7",
+    "commitizen": "^4.3.1",
+    "cz-conventional-changelog": "^3.3.0",
+    "eslint": "^10.4.0",
+    "eslint-config-prettier": "^10.1.8",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.5",
+    "prettier": "^3.8.3",
+    "typescript": "~5.9.2",
+    "typescript-eslint": "^8.59.4",
+    "vitest": "^4.1.7"
+  },
+  "config": {
+    "commitizen": {
+      "path": "cz-conventional-changelog"
+    }
+  },
+  "lint-staged": {
+    "*.ts": [
+      "eslint --fix --max-warnings=0",
+      "prettier --write"
+    ],
+    "*.{js,mjs,cjs,json,md,yml,yaml}": [
+      "prettier --write"
+    ]
+  }
+}

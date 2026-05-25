@@ -1,0 +1,27 @@
+# EditorConfig — https://editorconfig.org
+# Spójność dla edytorów bez Prettier-plugin (Neovim, Sublime, niektóre JetBrains setupy).
+# Cross-platform: LF wymuszane wszędzie, nawet na Windows (git config core.autocrlf=input wystarcza).
+root = true
+
+[*]
+end_of_line = lf
+insert_final_newline = true
+charset = utf-8
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+[*.md]
+# Markdown — zachowaj trailing spaces (line break w GFM = "  \n").
+trim_trailing_whitespace = false
+max_line_length = off
+
+[*.{yml,yaml}]
+indent_size = 2
+
+[*.{ps1,psm1}]
+# PowerShell — Windows konwencja CRLF (PS native).
+end_of_line = crlf
+
+[Makefile]
+indent_style = tab

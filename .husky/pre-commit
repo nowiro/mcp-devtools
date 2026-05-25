@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+# mcp-devtools — pre-commit hook: lint-staged on staged files
+npx --no-install lint-staged --concurrent false || exit 1

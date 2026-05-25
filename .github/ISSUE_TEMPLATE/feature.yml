@@ -1,0 +1,78 @@
+name: Feature request
+description: Propozycja nowego narzędzia MCP lub zmiany w istniejącym zachowaniu.
+title: 'feat: '
+labels: ['type:feat', 'triage']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Cieszymy się z propozycji. Mała prośba — przed wypełnieniem
+        sprawdź czy żądana funkcjonalność nie jest już dostarczana przez
+        kompozycję istniejących narzędzi (np. `analyze_code` + `compliance_report`).
+        Często wystarczy nowy `defineTool({...})`.
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: Typ propozycji
+      options:
+        - Nowe narzędzie MCP (`src/tools/<name>.ts`)
+        - Zmiana zachowania istniejącego narzędzia
+        - Nowy framework preset dla analyze_code
+        - Zmiana w warstwie shared (sandbox, log, session-tracker, …)
+        - Zmiana w CDK (workflow compile)
+        - Zmiana w toolingu / CI / docs
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: Co próbujesz osiągnąć, czego obecnie nie można? Konkretny use case > abstrakcyjna prośba.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Propozycja
+      description: |
+        Jak to powinno wyglądać? Najlepiej szkic nazwy narzędzia, kształtu
+        inputu (Zod), kształtu outputu. Jeśli nie wiesz — opisz słowami,
+        my pomożemy zaprojektować.
+      placeholder: |
+        Tool: detect_secrets
+        Input: { path: string, depth?: number, patterns?: string[] }
+        Output: { findings: [{ file, line, rule, snippet }], cache_hit }
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Rozważone alternatywy
+      description: Co próbowałeś / dlaczego inne podejścia nie wystarczą?
+
+  - type: dropdown
+    id: side-effects
+    attributes:
+      label: Efekty uboczne
+      description: |
+        Read = czyta tylko filesystem / output.
+        Write = modyfikuje pliki repo (wymaga `apply: true`).
+        Spawn = uruchamia external process (jak run_playwright).
+      options:
+        - Read-only (bez `apply`)
+        - Write (wymaga `apply: true`, default dry-run)
+        - Spawn (uruchamia child process, wymaga sandbox check)
+    validations:
+      required: true
+
+  - type: textarea
+    id: security
+    attributes:
+      label: Implikacje bezpieczeństwa
+      description: |
+        Jeśli to write/spawn — jakie ryzyko niesie? Path traversal? SSRF (sieć)?
+        ReDoS (regex)? Co się stanie przy niepoprawnym wywołaniu?

@@ -1,0 +1,30 @@
+node_modules/
+dist/
+coverage/
+.env
+.env.local
+.env.*.local
+.vscode/*.local
+tmp/
+*.log
+
+# OS-specific cruft (cross-platform repo — must ignore for all)
+.DS_Store                    # macOS Finder
+.AppleDouble                 # macOS network shares
+.LSOverride                  # macOS
+._*                          # macOS resource forks
+Thumbs.db                    # Windows Explorer thumbnails
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini                  # Windows Explorer folder config
+$RECYCLE.BIN/                # Windows recycle bin
+
+playwright-report/
+test-results/
+
+# User-profile config — never commit secrets.
+/config.json
+/.config/
+/secrets/
+*.secret.*

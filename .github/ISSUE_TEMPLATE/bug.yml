@@ -1,0 +1,140 @@
+name: Bug report
+description: Coś nie działa zgodnie z dokumentacją lub reproducible failure.
+title: 'bug: '
+labels: ['type:bug', 'triage']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Dzięki za zgłoszenie. Zanim wypełnisz: uruchom `npm run doctor` —
+        wynik często wskazuje przyczynę (Node version, dist nie zbudowane,
+        PROJECT_ROOT, npx w PATH).
+
+        Dla podatności bezpieczeństwa **NIE** używaj tego formularza —
+        patrz [SECURITY.md](../SECURITY.md).
+
+  - type: dropdown
+    id: tool
+    attributes:
+      label: Narzędzie
+      description: Które narzędzie MCP jest dotknięte?
+      options:
+        - analyze_code
+        - propose_fix
+        - run_playwright
+        - compliance_report
+        - mcp-devtools.get_usage_history
+        - serwer / transport stdio
+        - CDK (mcp-devtools-cdk compile)
+        - tooling (CI, husky, scripts)
+        - docs
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: Co się wydarzyło
+      description: Opis problemu w 1–3 zdaniach. Jeden problem na issue.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Oczekiwane zachowanie
+      description: Jak narzędzie powinno się zachować zgodnie z dokumentacją.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reprodukcja
+      description: |
+        Minimalne kroki do odtworzenia. Najlepiej z raw call:
+        ```
+        echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"<tool>","arguments":{...}}}' | node dist/server.js
+        ```
+      placeholder: |
+        1. ...
+        2. ...
+        3. Oczekiwane: X, faktyczne: Y
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logi / wyjście (stderr)
+      description: |
+        Wklej istotny fragment stderr serwera. Logger redaktuje sekrety, ale
+        **zweryfikuj** brak tokenów / wewnętrznych ścieżek przed wklejeniem.
+      render: shell
+
+  - type: input
+    id: version
+    attributes:
+      label: Wersja mcp-devtools
+      description: 'commit SHA lub `package.json#version`'
+      placeholder: 0.3.0 (commit deadbeef)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: System operacyjny
+      options:
+        - Windows 11
+        - Windows 10
+        - macOS 14 (Sonoma)
+        - macOS 15 (Sequoia)
+        - macOS 26
+        - Ubuntu 22.04
+        - Ubuntu 24.04
+        - inny Linux
+    validations:
+      required: true
+
+  - type: input
+    id: node
+    attributes:
+      label: Node version
+      placeholder: 'Node 22.11.0'
+    validations:
+      required: true
+
+  - type: dropdown
+    id: host
+    attributes:
+      label: Host MCP
+      options:
+        - VS Code + GitHub Copilot
+        - IntelliJ IDEA + AI Assistant
+        - IntelliJ IDEA + GitHub Copilot
+        - Claude Desktop
+        - Cursor
+        - Własny klient (Agent SDK, custom)
+        - Raw stdio (echo | node dist/server.js)
+    validations:
+      required: true
+
+  - type: textarea
+    id: doctor
+    attributes:
+      label: Output npm run doctor
+      description: Wklej output `npm run doctor` (lub `npm run doctor --json` dla parsowalnej formy).
+      render: shell
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Wstępna diagnostyka
+      options:
+        - label: Uruchomiłem `npm run doctor` i przeszło bez czerwonych
+          required: false
+        - label: Brak duplikatu w otwartych/zamkniętych issues
+          required: true
+        - label: Sprawdziłem [troubleshooting](../../docs/troubleshooting.md)
+          required: false
