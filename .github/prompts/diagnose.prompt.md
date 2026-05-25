@@ -35,13 +35,13 @@ Cel: szybka diagnostyka dlaczego `mcp-devtools` nie działa u użytkownika. Cros
 
 Tabela:
 
-| Check         | Status | Detail                                        |
-| ------------- | ------ | --------------------------------------------- |
-| Node version  | ✓      | 22.11.0 satisfies >=22                        |
-| Build         | ✓      | dist/server.js + 4 tools                      |
-| PATH (npx)    | ✓      | C:\Program Files\nodejs\npx.cmd               |
-| stdio sanity  | ✓      | tools/list returned 5 tools                   |
-| MCP registry  | ⚠      | .vscode/mcp.json mcp-alm-path unset           |
+| Check        | Status | Detail                              |
+| ------------ | ------ | ----------------------------------- |
+| Node version | ✓      | 22.11.0 satisfies >=22              |
+| Build        | ✓      | dist/server.js + 4 tools            |
+| PATH (npx)   | ✓      | C:\Program Files\nodejs\npx.cmd     |
+| stdio sanity | ✓      | tools/list returned 5 tools         |
+| MCP registry | ⚠      | .vscode/mcp.json mcp-alm-path unset |
 
 Plus actionable next-steps na każdym ✗ lub ⚠.
 

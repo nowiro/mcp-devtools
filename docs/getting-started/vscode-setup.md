@@ -59,15 +59,15 @@ Default: `false`. Dla code-review / triage włącz; dla audit-only zostaw `false
 
 ## 6. Troubleshooting
 
-| Symptom                            | Fix                                                                                          |
-| ---------------------------------- | -------------------------------------------------------------------------------------------- |
-| "Server not found" przy reload     | Zbuduj: `npm run build`. Sprawdź że `dist/server.js` istnieje.                               |
-| `alm-*` nie startuje               | Zła ścieżka `mcp-alm-path` — uruchom **MCP: List Servers → Reset Inputs**, podaj poprawną.   |
-| Tools nie widać w pickerze         | Restart VS Code. Sprawdź **View → Output → MCP** dla logów stderr.                           |
-| `EACCES` / permission denied       | macOS/Linux: `chmod +x dist/server.js` (zazwyczaj nie potrzebne, Node CLI radzi sobie sam).  |
-| `node: command not found` (macOS)  | Zainstaluj Node 22+: `brew install node@22` lub przez `nvm install 22 && nvm use 22`.        |
-| Ścieżki Windows nie działają       | VS Code akceptuje zarówno `C:\path` jak i `C:/path`. Unikaj mieszania separatorów.            |
-| `mcp-alm-path` Enter nie ustawia default | Wpisz explicit `${workspaceFolder}/../mcp-alm` w polu inputa.                          |
+| Symptom                                  | Fix                                                                                         |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------- |
+| "Server not found" przy reload           | Zbuduj: `npm run build`. Sprawdź że `dist/server.js` istnieje.                              |
+| `alm-*` nie startuje                     | Zła ścieżka `mcp-alm-path` — uruchom **MCP: List Servers → Reset Inputs**, podaj poprawną.  |
+| Tools nie widać w pickerze               | Restart VS Code. Sprawdź **View → Output → MCP** dla logów stderr.                          |
+| `EACCES` / permission denied             | macOS/Linux: `chmod +x dist/server.js` (zazwyczaj nie potrzebne, Node CLI radzi sobie sam). |
+| `node: command not found` (macOS)        | Zainstaluj Node 22+: `brew install node@22` lub przez `nvm install 22 && nvm use 22`.       |
+| Ścieżki Windows nie działają             | VS Code akceptuje zarówno `C:\path` jak i `C:/path`. Unikaj mieszania separatorów.          |
+| `mcp-alm-path` Enter nie ustawia default | Wpisz explicit `${workspaceFolder}/../mcp-alm` w polu inputa.                               |
 
 ## 7. Re-prompt o inputs
 

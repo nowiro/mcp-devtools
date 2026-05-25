@@ -6,13 +6,13 @@
 
 Pracujesz w **mcp-devtools** — MCP server TypeScript (transport stdio) wystawiający 5 narzędzi developer-workflow:
 
-| Narzędzie                          | Opis                                                                                                    |
-| ---------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| `analyze_code`                     | Statyczna analiza TS/TSX/JS/JSX/HTML/Vue. Per-framework metrics (Angular/React/Vue, auto-detect). mtime-cached. |
-| `propose_fix`                      | Zbiera kontekst bug-fix (failing test + source + rules) dla LLM caller'a.                              |
-| `run_playwright`                   | Uruchamia `npx playwright test`. Cross-platform: `npx.cmd` na Windows, `npx` na POSIX.                 |
-| `compliance_report`                | Scoring repo vs `*.md` rules z YAML frontmatter (`must_exist` / `must_not_exist` / `pattern`).         |
-| `mcp-devtools.get_usage_history`   | In-memory session ledger (FIFO 1000 rekordów).                                                         |
+| Narzędzie                        | Opis                                                                                                            |
+| -------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `analyze_code`                   | Statyczna analiza TS/TSX/JS/JSX/HTML/Vue. Per-framework metrics (Angular/React/Vue, auto-detect). mtime-cached. |
+| `propose_fix`                    | Zbiera kontekst bug-fix (failing test + source + rules) dla LLM caller'a.                                       |
+| `run_playwright`                 | Uruchamia `npx playwright test`. Cross-platform: `npx.cmd` na Windows, `npx` na POSIX.                          |
+| `compliance_report`              | Scoring repo vs `*.md` rules z YAML frontmatter (`must_exist` / `must_not_exist` / `pattern`).                  |
+| `mcp-devtools.get_usage_history` | In-memory session ledger (FIFO 1000 rekordów).                                                                  |
 
 Każda odpowiedź jest wrapowana w `{ data, _meta: { tokensEstimate, correlationId, durationMs } }`.
 

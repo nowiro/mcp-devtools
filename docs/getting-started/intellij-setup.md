@@ -88,10 +88,10 @@ Patrz README `mcp-alm` — file mode `0600` na POSIX (chmod), na Windows uprawni
 
 ## 6. Troubleshooting
 
-| Symptom                       | Fix                                                                                          |
-| ----------------------------- | -------------------------------------------------------------------------------------------- |
-| "Server failed to start"      | Sprawdź absolute path. IntelliJ NIE expanduje zmiennych.                                     |
-| Tool picker pusty             | Restart IDE. Sprawdź **Help → Show Log in Explorer/Finder** → search "mcp".                  |
-| `node: command not found`     | Node nie w PATH IntelliJ. Settings → Tools → Terminal → Shell path. Restart IDE.             |
-| Build z dist nie wystartuje   | `node --version` ≥ 22. Sprawdź `engines.node` w `package.json`.                              |
-| Slashe w ścieżkach na Windows | Używaj `\\` w XML lub raw `\` z atrybutem `xml:space="preserve"`. Forward slashes też OK.    |
+| Symptom                       | Fix                                                                                       |
+| ----------------------------- | ----------------------------------------------------------------------------------------- |
+| "Server failed to start"      | Sprawdź absolute path. IntelliJ NIE expanduje zmiennych.                                  |
+| Tool picker pusty             | Restart IDE. Sprawdź **Help → Show Log in Explorer/Finder** → search "mcp".               |
+| `node: command not found`     | Node nie w PATH IntelliJ. Settings → Tools → Terminal → Shell path. Restart IDE.          |
+| Build z dist nie wystartuje   | `node --version` ≥ 22. Sprawdź `engines.node` w `package.json`.                           |
+| Slashe w ścieżkach na Windows | Używaj `\\` w XML lub raw `\` z atrybutem `xml:space="preserve"`. Forward slashes też OK. |

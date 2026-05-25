@@ -94,9 +94,7 @@ describe('analyze_code handler — angular', () => {
   });
 
   const testContext = { log: () => undefined, projectRoot: '' };
-  const baseInput = (
-    d: string,
-  ): { path: string; depth: number; metrics: boolean; framework: 'auto' } => ({
+  const baseInput = (d: string): { path: string; depth: number; metrics: boolean; framework: 'auto' } => ({
     path: d,
     depth: 3,
     metrics: true,

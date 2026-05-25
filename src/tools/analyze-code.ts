@@ -119,7 +119,8 @@ async function* walkSource(root: string, depth: number): AsyncGenerator<string> 
     }
     for (const entry of entries) {
       const { name } = entry;
-      if (name.startsWith('.') || name === 'node_modules' || name === 'dist' || name === 'coverage' || name === 'build') continue;
+      if (name.startsWith('.') || name === 'node_modules' || name === 'dist' || name === 'coverage' || name === 'build')
+        continue;
       const full = nodePath.resolve(directory, name);
       if (entry.isDirectory()) yield* walk(full, depthLeft - 1);
       else if (entry.isFile() && SUPPORTED_EXT.test(name) && !name.endsWith('.d.ts')) yield full;
@@ -218,7 +219,6 @@ export function countVueMetrics(text: string, isSfc: boolean): VueMetrics {
 const CONSOLE_RE = /\bconsole\.(log|warn|error|debug|info)\b/;
 const TODO_RE = /\b(TODO|FIXME|XXX|HACK)\b[:\s]/;
 const ANGULAR_LEGACY_RE = /\*ngIf|\*ngFor|\*ngSwitch/;
-const REACT_DANGEROUS_RE = /dangerouslySetInnerHTML/;
 
 function scanLines(
   file: string,
@@ -257,7 +257,7 @@ function scanLines(
         msg: 'legacy structural directive — use @if / @for / @switch (Angular 17+)',
       });
     }
-    if (framework === 'react' && REACT_DANGEROUS_RE.test(line)) {
+    if (framework === 'react' && line.includes('dangerouslySetInnerHTML')) {
       findings.push({
         kind: 'dangerous-html',
         severity: 'warning',
@@ -299,8 +299,7 @@ export const definition: ToolDefinition<InputT, OutputT> = {
       allFiles.push(file);
     }
 
-    const framework: DetectedFramework =
-      requested === 'auto' ? await detectFramework(allFiles) : (requested as DetectedFramework);
+    const framework: DetectedFramework = requested === 'auto' ? await detectFramework(allFiles) : requested;
 
     let total_lines = 0;
     let todo_count = 0;

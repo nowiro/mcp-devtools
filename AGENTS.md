@@ -44,13 +44,13 @@ Główny klient: **GitHub Copilot** w **VS Code ≥ 1.121** i **IntelliJ IDEA �
 
 ## Gdzie idzie nowa praca
 
-| Rodzaj pracy                | Sugerowany katalog                                                                              |
-| --------------------------- | ----------------------------------------------------------------------------------------------- |
-| Nowy MCP tool               | `src/tools/<tool>.ts` + `src/tools/<tool>.spec.ts` + rejestracja w `src/server.ts`              |
-| Cross-cutting helper        | `src/shared/` (musi mieć obok plik `*.spec.ts`)                                                 |
-| Doc                         | `docs/<section>/` — Diátaxis (getting-started / how-to / reference / explanation)               |
-| Workflow / slash command    | `.github/prompts/<name>.prompt.md` (auto-rozpoznawane przez Copilot Chat jako `/<name>`)        |
-| CDK workflow (compile)      | `src/cdk/workflows/<name>.workflow.ts` → `npm run cdk:compile` generuje `.github/prompts/*.md`  |
+| Rodzaj pracy             | Sugerowany katalog                                                                             |
+| ------------------------ | ---------------------------------------------------------------------------------------------- |
+| Nowy MCP tool            | `src/tools/<tool>.ts` + `src/tools/<tool>.spec.ts` + rejestracja w `src/server.ts`             |
+| Cross-cutting helper     | `src/shared/` (musi mieć obok plik `*.spec.ts`)                                                |
+| Doc                      | `docs/<section>/` — Diátaxis (getting-started / how-to / reference / explanation)              |
+| Workflow / slash command | `.github/prompts/<name>.prompt.md` (auto-rozpoznawane przez Copilot Chat jako `/<name>`)       |
+| CDK workflow (compile)   | `src/cdk/workflows/<name>.workflow.ts` → `npm run cdk:compile` generuje `.github/prompts/*.md` |
 
 ## Koordynacja z innymi repo
 

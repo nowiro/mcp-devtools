@@ -53,6 +53,7 @@ Polski tokenizuje się ~1.4× drożej niż angielski.
 **Zasada:** powtarzalne, dobrze zdefiniowane operacje (bootstrap, doctor, validate AI config, release) wykonuj **skryptem Node** o stałej kolejności kroków — nie ad-hoc promptem do LLM.
 
 **Co MUSI być skryptem:**
+
 - Bootstrap repo → `npm run bootstrap` (`tools/scripts/bootstrap.mjs`)
 - Diagnostics → `npm run doctor` (`tools/scripts/doctor.mjs`)
 - AI config validation → `npm run ai:validate` (`tools/scripts/validate-ai-config.mjs`)

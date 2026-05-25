@@ -131,8 +131,8 @@ npm run verify   # format:check + lint + typecheck + test + build
 
 ## Pozycjonowanie
 
-| Repo               | Rola                                                                              |
-| ------------------ | --------------------------------------------------------------------------------- |
+| Repo               | Rola                                                                               |
+| ------------------ | ---------------------------------------------------------------------------------- |
 | `mcp-alm`          | 5 connectorów ALM (Jira / Confluence / Figma / SonarQube / GitLab). Copilot-first. |
 | **`mcp-devtools`** | **Tu jesteś** — dev-workflow primitives. Copilot-first.                            |
 

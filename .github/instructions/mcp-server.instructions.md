@@ -106,6 +106,7 @@ Każda odpowiedź jest wrapowana w:
 ## 9. Dodawanie nowego narzędzia
 
 Checklist:
+
 1. `src/tools/<tool>.ts` z `Input`, `Output`, `definition`.
 2. `src/tools/<tool>.spec.ts` z min. 3 testami: happy path, sandbox escape, edge case.
 3. Rejestracja w `src/server.ts`.
