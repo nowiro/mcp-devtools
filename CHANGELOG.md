@@ -4,6 +4,27 @@ All notable changes are documented here. Format: [Keep a Changelog](https://keep
 
 ## [Unreleased]
 
+### Added
+
+- **`tools/scripts/validate-ai-config.mjs`** — walidacja konfiguracji Copilot (`.vscode/mcp.json`, frontmatter `.github/instructions/*.instructions.md`, `prompts/*.prompt.md`). Run: `npm run ai:validate`.
+- **`tools/scripts/dev-client.mjs`** — minimalny klient stdio do ręcznego testowania serwera MCP bez IDE. `node tools/scripts/dev-client.mjs [tool] ['<json-args>']`.
+- **`.github/workflows/pr-checks.yml`** — weryfikacja conventional commits w PR-ach + format tytułu PR (`amannn/action-semantic-pull-request`) + secret scan (gitleaks).
+- **`.github/instructions/language.instructions.md`** — reguły split PL/EN: proza po polsku, kod/identyfikatory/opisy MCP po angielsku.
+- **`.github/instructions/llm-optimization.instructions.md`** — reguły budżetu tokenów, token-shaping, deterministyczne skrypty, `_meta` envelope.
+- **`.github/instructions/mcp-server.instructions.md`** — konwencje serwera: naming narzędzi, sandbox, Zod, error contract, logowanie.
+- **`.github/instructions/principles.instructions.md`** — złote reguły: DRY/SOLID/KISS/YAGNI/composition.
+- **`.github/instructions/production-readiness.instructions.md`** — 4 must-haves przed shipnięciem: sandbox, Zod, testy, verify gate.
+
+### Changed
+
+- **`package.json#version`** — `0.3.0` → `1.0.0`. Projekt jest feature-complete; parity z `mcp-alm` 1.0.0.
+- **`package.json#scripts`** — dodano `ai:validate`; `verify` rozszerzony o `&& npm run ai:validate`.
+- **`package.json#{homepage,repository,bugs}`** — `<your-org>` → `nowiro`.
+- **`.github/copilot-instructions.md`** — rozszerzony 80 → 140 LoC: tabela narzędzi, architektura, lista instrukcji do załadowania, sekcja "Dodawanie nowego narzędzia".
+- **`README.md`** — `<your-org>` → `nowiro` w badge URL, URL klonowania, linku do mcp-alm.
+
+## [1.0.0] — 2026-05-25
+
 Cross-platform pass: repo musi działać z GitHub Copilot identycznie na Windows i macOS/Linux. Plus OSS hygiene parity z sibling `mcp-alm`.
 
 ### Added
