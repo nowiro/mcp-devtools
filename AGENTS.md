@@ -72,6 +72,15 @@ Dostępne templates: `npm run template:list` (analyze-code-finding, propose-fix-
 
 Gdy dodajesz template — dodaj fixture w `tests/fixtures/<name>.json` żeby preview działało. Gdy zmieniasz template — bump `version:` w frontmatter.
 
+## Deterministic gates (validate + audit)
+
+| Skrypt                    | Co robi                                                                                                                                 |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run validate:inputs` | static check tool-contract: każdy `src/tools/*.ts` ma exported `Input` + `Output` Zod + `definition: ToolDefinition` z poprawnym wiring |
+| `npm run token:budget`    | scan Zod limits per tool, porównanie z baseline z `llm-optimization.instructions.md`, raport `docs/runs/<date>-token-budget.md`         |
+
+`validate:inputs` wpięte w `npm run verify` — drift kontraktu blokuje commit. `token:budget` to manualny audit (akcje delegowane do `tool-author` w osobnym PR).
+
 ## Pliki do załadowania na początku sesji
 
 - [`README.md`](README.md) — overview od strony użytkownika.

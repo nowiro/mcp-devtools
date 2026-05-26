@@ -1,0 +1,205 @@
+#!/usr/bin/env node
+
+/**
+ * token-budget.mjs — static audit of token budgets per tool.
+ *
+ * mcp-devtools has 5 tools, low call volume. Instead of a runtime
+ * session-tracker analyser, this script does a static audit: scans
+ * `src/tools/*.ts` for Zod limits (.max(N), .default(N), .min(N)) and
+ * compares against the baseline from `.github/instructions/
+ * llm-optimization.instructions.md`.
+ *
+ * Output: markdown report at `docs/runs/<date>-token-budget.md` with
+ * three sections:
+ *   1. Per-tool current limits — what Zod schema accepts as max.
+ *   2. Recommendations — suspicious limits / missing defaults.
+ *   3. Baseline comparison — what llm-optimization.md says.
+ *
+ * Script NEVER modifies code — produces a runbook that tool-author
+ * implements in a separate PR (same workflow as mcp-alm token-tuner).
+ *
+ * Usage:
+ *   npm run token:budget
+ *   npm run token:budget -- --json
+ *
+ * @see .github/instructions/llm-optimization.instructions.md
+ */
+import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import nodePath from 'node:path';
+import process from 'node:process';
+
+const ROOT = process.cwd();
+const ARGS = parseArgs(process.argv.slice(2));
+const JSON_OUT = ARGS.json === true;
+const TODAY = new Date().toISOString().slice(0, 10);
+
+const c = {
+  dim: (s) => `\x1b[2m${s}\x1b[0m`,
+  ok: (s) => `\x1b[32m${s}\x1b[0m`,
+  warn: (s) => `\x1b[33m${s}\x1b[0m`,
+  err: (s) => `\x1b[31m${s}\x1b[0m`,
+  bold: (s) => `\x1b[1m${s}\x1b[0m`,
+};
+
+const TOOLS_DIR = nodePath.resolve(ROOT, 'src', 'tools');
+const toolFiles = listFiles(TOOLS_DIR).filter((f) => f.endsWith('.ts') && !f.endsWith('.spec.ts'));
+
+/** @type {Array<{ tool: string; limits: Array<{ field: string; kind: string; value: string }> }>} */
+const inventory = [];
+
+if (!JSON_OUT) process.stdout.write(`${c.bold('▶ Scanning')} ${toolFiles.length} tool file(s)\n`);
+
+for (const file of toolFiles) {
+  const rel = relPath(file);
+  const src = readFileSync(file, 'utf8');
+  const tool = rel.replace(/^src[\\/]tools[\\/]/, '').replace(/\.ts$/, '');
+  /** @type {Array<{ field: string; kind: string; value: string }>} */
+  const limits = [];
+  // Match patterns like: name: z.number().int().min(1).max(20).default(5)
+  // Allows any chars inside parens (numbers, strings, regex).
+  const fieldRe = /(\w+)\s*:\s*z\.(?:[\w]+\([^)]*\)\.?)+/g;
+  for (const fieldMatch of src.matchAll(fieldRe)) {
+    const field = fieldMatch[1];
+    const chain = fieldMatch[0];
+    for (const m of chain.matchAll(/\.(max|min|default)\((-?\d+(?:_\d+)*(?:\.\d+)?)\)/g)) {
+      limits.push({ field, kind: m[1], value: m[2].replaceAll('_', '') });
+    }
+  }
+  inventory.push({ tool, limits });
+  if (!JSON_OUT) process.stdout.write(`  ${c.ok('✓')} ${c.dim(rel)} — ${limits.length} limit(s)\n`);
+}
+
+if (!JSON_OUT) process.stdout.write(`\n${c.bold('▶ Baseline')}\n`);
+
+const baselinePath = nodePath.resolve(ROOT, '.github/instructions/llm-optimization.instructions.md');
+let baseline = '';
+if (existsSync(baselinePath)) {
+  baseline = readFileSync(baselinePath, 'utf8');
+  if (!JSON_OUT) process.stdout.write(`  ${c.ok('✓')} loaded ${c.dim(relPath(baselinePath))}\n`);
+}
+
+const baselineMaxMatch = /BudgetTracker\((\d[\d_]*)\)/.exec(baseline);
+const baselineMax = baselineMaxMatch ? Number(baselineMaxMatch[1].replaceAll('_', '')) : null;
+if (baselineMax && !JSON_OUT) process.stdout.write(`  ${c.dim(`BudgetTracker default: ${baselineMax}`)}\n`);
+
+const recommendations = [];
+for (const t of inventory) {
+  if (t.limits.length === 0) {
+    recommendations.push({ tool: t.tool, action: 'review', reason: 'no numeric limits — confirm inputs are bounded' });
+    continue;
+  }
+  const maxValues = t.limits.filter((l) => l.kind === 'max').map((l) => Number(l.value));
+  const highMax = maxValues.find((v) => v > 100);
+  if (highMax) {
+    recommendations.push({
+      tool: t.tool,
+      action: 'review-high-max',
+      reason: `max=${highMax} — sprawdź czy uzasadnione (większe niż 100)`,
+    });
+  }
+  const noDefault = t.limits.every((l) => l.kind !== 'default');
+  if (noDefault) {
+    recommendations.push({
+      tool: t.tool,
+      action: 'add-default',
+      reason: 'brak .default() — caller musi zgadywać limity',
+    });
+  }
+}
+
+const reportPath = `docs/runs/${TODAY}-token-budget.md`;
+const reportAbs = nodePath.resolve(ROOT, reportPath);
+
+const inventoryRows = inventory
+  .flatMap((t) =>
+    t.limits.length === 0
+      ? [`| \`${t.tool}\` | _no limits_ | — | — |`]
+      : t.limits.map((l) => `| \`${t.tool}\` | \`${l.field}\` | ${l.kind} | ${l.value} |`),
+  )
+  .join('\n');
+
+const recRows = recommendations.map((r) => `- \`${r.tool}\` — **${r.action}**: ${r.reason}`).join('\n');
+
+const report = `---
+id: run.token-budget.${TODAY}
+title: Token budget audit — ${TODAY}
+type: run
+status: draft
+date: ${TODAY}
+---
+
+# Token budget audit — ${TODAY}
+
+Generated by \`npm run token:budget\` (deterministic; no LLM calls).
+
+## Tools scanned
+
+| tool | field | kind | value |
+| ---- | ----- | ---- | ----- |
+${inventoryRows || '_no tools found_'}
+
+## Recommendations
+
+${recRows || '_no issues found_'}
+
+## Baseline
+
+- \`.github/instructions/llm-optimization.instructions.md\` references \`BudgetTracker(${baselineMax ?? '?'})\` as the per-call default.
+- Tools that return collections should set \`limit: z.number().int().min(1).max(N).default(M)\` where N ≤ baseline / average payload tokens.
+
+## Decision
+
+> Reviewer: open this report, accept / reject per-tool recommendations,
+> delegate code changes to tool-author. Apply via Conventional Commits
+> with scope = tool name.
+
+## Anti-patterns
+
+- Nie aplikuj zmian w tym samym PR co audit.
+- Nie podnoś \`.max()\` bez pokrycia testami integracyjnymi z dużym payloadem.
+- Nie usuwaj \`.default()\` po wprowadzeniu — caller agentów polega na predykcji.
+`;
+
+if (JSON_OUT) {
+  process.stdout.write(JSON.stringify({ inventory, recommendations, baselineMax, reportPath }, null, 2) + '\n');
+} else {
+  mkdirSync(nodePath.dirname(reportAbs), { recursive: true });
+  if (existsSync(reportAbs)) {
+    process.stdout.write(`\n${c.warn('⚠')} ${reportPath} exists (skip)\n`);
+  } else {
+    writeFileSync(reportAbs, report, 'utf8');
+    process.stdout.write(`\n${c.ok('✓')} wrote ${reportPath}\n`);
+  }
+}
+
+process.exit(0);
+
+// ── helpers ────────────────────────────────────────────────────────────────
+
+function parseArgs(argv) {
+  const out = {};
+  for (const a of argv) {
+    const kv = /^--([\w-]+)(?:=(.*))?$/.exec(a);
+    if (!kv) continue;
+    out[kv[1]] = kv[2] ?? true;
+  }
+  return out;
+}
+
+function listFiles(dir) {
+  const out = [];
+  try {
+    for (const name of readdirSync(dir)) {
+      const p = nodePath.resolve(dir, name);
+      if (statSync(p).isDirectory()) out.push(...listFiles(p));
+      else out.push(p);
+    }
+  } catch {
+    /* missing — fine */
+  }
+  return out;
+}
+
+function relPath(abs) {
+  return abs.replace(ROOT + nodePath.sep, '').replaceAll('\\', '/');
+}
