@@ -1,4 +1,5 @@
 ---
+name: orchestrator
 description: Orchestrator — koordynuje multi-agent workflows i bramkuje Definition of Done dla mcp-devtools
 tools: ['editFiles', 'search', 'runCommands', 'runTasks', 'problems', 'githubRepo', 'fetch']
 ---

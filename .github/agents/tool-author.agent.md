@@ -1,4 +1,5 @@
 ---
+name: tool-author
 description: Tool Author — projektuje i implementuje narzędzia MCP zgodnie z I/O contract
 tools: ['editFiles', 'search', 'runCommands', 'runTasks', 'problems']
 ---

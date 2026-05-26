@@ -1,4 +1,5 @@
 ---
+name: architect
 description: Architect — projektuje shape rozwiązania (plany, ADR-y, module boundaries) zanim kod jest pisany
 tools: ['editFiles', 'search', 'problems']
 ---

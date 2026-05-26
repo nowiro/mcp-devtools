@@ -1,4 +1,5 @@
 ---
+name: app-scaffolder
 description: App Scaffolder — bootstrapuje nowe aplikacje/libs/services w house-style (Nx, Next, NestJS, ts-lib, MCP server, CDK stack)
 tools: ['editFiles', 'search', 'runCommands', 'runTasks', 'problems']
 ---

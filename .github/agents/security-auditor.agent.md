@@ -1,4 +1,5 @@
 ---
+name: security-auditor
 description: Security Auditor — audytuje sandbox / SSRF / write-guard / secrets i prowadzi STRIDE per asset
 tools: ['editFiles', 'search', 'runCommands', 'problems']
 ---

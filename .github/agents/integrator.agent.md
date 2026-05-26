@@ -1,4 +1,5 @@
 ---
+name: integrator
 description: Integrator — wiruje scaffold w produkcyjny dev loop (Copilot, MCP, CI, deployment)
 tools: ['editFiles', 'search', 'runCommands', 'runTasks', 'problems']
 ---
