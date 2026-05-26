@@ -15,7 +15,12 @@
  */
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
+import {
+  CallToolRequestSchema,
+  GetPromptRequestSchema,
+  ListPromptsRequestSchema,
+  ListToolsRequestSchema,
+} from '@modelcontextprotocol/sdk/types.js';
 import nodePath from 'node:path';
 import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
@@ -23,6 +28,7 @@ import { zodToJsonSchema } from 'zod-to-json-schema';
 import { correlationIdFromMeta } from './shared/correlation.js';
 import { compactJson } from './shared/llm-optimize.js';
 import { log } from './shared/log.js';
+import { definePrompt, type PromptDefinition } from './shared/prompt.js';
 import { buildMeta, wrapResponse } from './shared/response-meta.js';
 import { sessionTracker } from './shared/session-tracker.js';
 import type { ToolContext, ToolDefinition } from './shared/types.js';
@@ -87,10 +93,96 @@ function stringifyLength(value: unknown): number {
   return typeof value === 'string' ? value.length : JSON.stringify(value).length;
 }
 
+// ── prompts (MCP `prompts/list` + `prompts/get`) ──────────────────────────
+
+const prompts: PromptDefinition[] = [
+  definePrompt({
+    name: 'pre-commit-check',
+    description:
+      'Lekki pre-commit scan: analyze_code (depth 3) + compliance_report — wykrywa obvious gotchas zanim pójdzie do CI.',
+    arguments: [{ name: 'projectRoot', description: 'Project root path (default: PROJECT_ROOT env)', required: false }],
+    buildMessages: (args) => [
+      {
+        role: 'user',
+        content: {
+          type: 'text',
+          text: `Uruchom pre-commit scan dla ${args['projectRoot'] ?? 'PROJECT_ROOT'}:
+1. \`analyze_code({ path: ".", depth: 3, framework: "auto" })\` — wykryj console-log, dangerous-html, legacy-patterns, TODO.
+2. \`compliance_report({ project_root: ".", standards_path: "docs/standards", format: "json" })\` — jeśli docs/standards/ istnieje, score vs rules.
+3. Połącz wyniki: lista high-severity findings + compliance score. Jeśli score < 80 lub jakieś dangerous-html — odradzaj commit.`,
+        },
+      },
+    ],
+  }),
+  definePrompt({
+    name: 'flaky-investigation',
+    description:
+      'Diagnostic flow dla failing testu: propose_fix składa kontekst (test + source + rules) dla LLM do zaproponowania fixu.',
+    arguments: [
+      { name: 'testPath', description: 'Path to failing test file (e.g. src/auth/auth.spec.ts)', required: true },
+      { name: 'failureText', description: 'Failure output / stack trace (kilka linii)', required: true },
+    ],
+    buildMessages: (args) => [
+      {
+        role: 'user',
+        content: {
+          type: 'text',
+          text: `Test ${args['testPath']} failuje:
+
+\`\`\`
+${args['failureText']}
+\`\`\`
+
+1. \`propose_fix({ test_path: "${args['testPath']}", failure_text: ..., paths: [], rules_paths: ["docs/standards"], window: 25 })\`.
+2. Z otrzymanego \`context\` zidentyfikuj root cause (race condition / mock drift / Date.now / Math.random / real I/O).
+3. Zaproponuj konkretny diff dla source file + dla testu (jeśli jest flaky a nie buggy).
+4. Wskaż czy to incydent-class (regression) czy quality-class (od początku flaky).`,
+        },
+      },
+    ],
+  }),
+  definePrompt({
+    name: 'full-audit',
+    description: 'Comprehensive pre-release audit: analyze_code (deep) + compliance + sandbox audit.',
+    arguments: [{ name: 'projectRoot', description: 'Project root path (default: PROJECT_ROOT)', required: false }],
+    buildMessages: (args) => [
+      {
+        role: 'user',
+        content: {
+          type: 'text',
+          text: `Full pre-release audit dla ${args['projectRoot'] ?? 'PROJECT_ROOT'}:
+1. \`analyze_code({ path: ".", depth: 5, metrics: true, framework: "auto" })\` — pełen scan z metrics.
+2. \`compliance_report({ project_root: ".", standards_path: "docs/standards", format: "sarif" })\` — SARIF dla GitHub code-scanning.
+3. Sprawdź czy \`npm run workflow:audit-sandbox\` daje zero high findings.
+4. Połącz: tabela tools (analyzed/findings/passed/failed) + go/no-go verdict dla release.`,
+        },
+      },
+    ],
+  }),
+  definePrompt({
+    name: 'mcp-devtools.usage-summary',
+    description: 'Pokaż użycie tooli w obecnej sesji + per-tool tokens / latency breakdown.',
+    buildMessages: () => [
+      {
+        role: 'user',
+        content: {
+          type: 'text',
+          text: '`mcp-devtools.get_usage_history({})`. Pokaż: totalCalls / totalTokens. Tabela byTool: tool | calls | tokens | avg-ms. Highlight tools z >10k tokens.',
+        },
+      },
+    ],
+  }),
+];
+
+const promptsByName = new Map(prompts.map((p) => [p.name, p]));
+
 async function main(): Promise<void> {
   const byName = new Map(tools.map((t) => [t.name, t]));
 
-  const server = new Server({ name: SERVER_NAME, version: SERVER_VERSION }, { capabilities: { tools: {} } });
+  const server = new Server(
+    { name: SERVER_NAME, version: SERVER_VERSION },
+    { capabilities: { tools: {}, prompts: {} } },
+  );
 
   server.setRequestHandler(ListToolsRequestSchema, async () => ({
     tools: tools.map((t) => ({
@@ -99,6 +191,32 @@ async function main(): Promise<void> {
       inputSchema: zodToJsonSchema(t.inputSchema as never, { target: 'jsonSchema7' }),
     })),
   }));
+
+  server.setRequestHandler(ListPromptsRequestSchema, async () => ({
+    prompts: prompts.map((p) => ({
+      name: p.name,
+      description: p.description,
+      ...(p.arguments
+        ? {
+            arguments: p.arguments.map((a) => ({
+              name: a.name,
+              description: a.description,
+              required: a.required ?? false,
+            })),
+          }
+        : {}),
+    })),
+  }));
+
+  server.setRequestHandler(GetPromptRequestSchema, async (req) => {
+    const prompt = promptsByName.get(req.params.name);
+    if (!prompt) throw new Error(`Unknown prompt: ${req.params.name}`);
+    const args: Record<string, string> = req.params.arguments ?? {};
+    return {
+      description: prompt.description,
+      messages: prompt.buildMessages(args),
+    };
+  });
 
   server.setRequestHandler(CallToolRequestSchema, async (req) => {
     const tool = byName.get(req.params.name);

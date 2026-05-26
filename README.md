@@ -170,6 +170,29 @@ orchestrator → architect (ADR + plan)
             → security-auditor (sandbox + STRIDE per asset)
 ```
 
+## MCP Prompts — preconfigured slash-commands
+
+Serwer eksponuje **MCP Prompts** (`prompts/list` + `prompts/get`) — gotowe slash-commands w Copilot Chat (`/<prompt>`). Copilot dostaje pełną treść promptu, więc nie musisz pisać kompozycji `analyze_code` + `compliance_report` ręcznie.
+
+| Prompt                        | Args                      | Co robi                                                                                          |
+| ----------------------------- | ------------------------- | ------------------------------------------------------------------------------------------------ |
+| `/pre-commit-check`           | `projectRoot?` (opt.)     | Lekki scan: analyze_code (depth 3) + compliance_report. Veto przy dangerous-html lub score < 80. |
+| `/flaky-investigation`        | `testPath`, `failureText` | propose_fix składa kontekst → LLM proponuje root cause + diff (incident vs quality class).       |
+| `/full-audit`                 | `projectRoot?` (opt.)     | Comprehensive pre-release audit: analyze_code (deep) + compliance (SARIF) + sandbox audit.       |
+| `/mcp-devtools.usage-summary` | —                         | Pokaż usage history obecnej sesji + per-tool tokens / latency breakdown.                         |
+
+**Wzorzec użycia:**
+
+```text
+> /pre-commit-check
+# Copilot odpala analyze_code + compliance_report w jednym pickerze
+
+> /flaky-investigation testPath=src/auth/auth.spec.ts failureText="TypeError: Cannot read property of undefined"
+# Copilot składa context przez propose_fix → LLM diagnozuje
+```
+
+Token saving: zamiast "uruchom analyze_code dla całego src, potem compliance vs docs/standards, połącz wyniki, zaproponuj go/no-go" (~50 tokens), wpisujesz `/full-audit` (~3 tokens). Plus prompt jest **cached** w Copilot Chat — nie tracimy contextu na "powtórz".
+
 ## Workflow scripts — deterministic scaffolders
 
 Dla najczęściej powtarzanych workflow z `.github/prompts/` repo dostarcza **deterministic scaffolders** w `tools/scripts/workflow-*.mjs`. Skrypty tworzą strukturę (folders, frontmatter, snippety, plan markdown) zanim Copilot zacznie pracować — agent dostaje gotowy szkielet zamiast wymyślać shape. Oszczędność tokenów + reproducible output niezależnie od modelu LLM.
