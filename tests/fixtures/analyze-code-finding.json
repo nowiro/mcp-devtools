@@ -1,0 +1,35 @@
+{
+  "target": "C:\\repos\\example-app\\src",
+  "framework": "Angular 21",
+  "filesScanned": 142,
+  "linesScanned": 18230,
+  "cacheHits": 87,
+  "metrics": [
+    { "name": "components", "value": 38 },
+    { "name": "signals", "value": 24 },
+    { "name": "services", "value": 17 },
+    { "name": "ngOnInit usages", "value": 4 }
+  ],
+  "findings": [
+    {
+      "path": "src/app/dashboard/dashboard.component.ts",
+      "line": 47,
+      "rule": "angular/prefer-signal",
+      "severity": "warning",
+      "message": "Property `count` uses BehaviorSubject; prefer signal() for new code.",
+      "suggestion": "Replace `count = new BehaviorSubject(0)` with `count = signal(0)`."
+    },
+    {
+      "path": "src/app/api/auth.service.ts",
+      "line": 12,
+      "rule": "security/no-token-in-storage",
+      "severity": "error",
+      "message": "Token persisted to localStorage; use HttpOnly cookie instead.",
+      "suggestion": "Move token to Set-Cookie HttpOnly header on backend response."
+    }
+  ],
+  "dependencies": [
+    { "name": "@angular/core", "version": "^21.0.0", "from": "package.json" },
+    { "name": "rxjs", "version": "^8.2.0", "from": "package.json" }
+  ]
+}

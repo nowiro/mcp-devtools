@@ -50,6 +50,28 @@ VS Code musi mieć włączone `chat.modeFilesLocations` w [`.vscode/settings.jso
 
 Inne hosty MCP (Claude Desktop, Cursor, własny SDK) nie czytają agents — czytają `AGENTS.md` + `.github/copilot-instructions.md` jako fallback.
 
+## Response templates (LLM-agnostic outputs)
+
+Tool handlery renderują payload przez [`src/shared/response-template.ts`](src/shared/response-template.ts) z markdown+frontmatter templates pod [`templates/responses/`](templates/responses/). Cel: **identyczna struktura odpowiedzi niezależnie od modelu LLM** który ją czyta (Claude / GPT / Gemini behind Copilot).
+
+Engine syntax (self-contained, no deps):
+
+- `{{ var }}` lub `{{ var.path }}` — substytucja z dot-notation
+- `{{ var | default:"—" }}` — fallback gdy nullish / pusty string
+- `{{#if var}}...{{/if}}` — warunek (truthy = non-empty)
+- `{{#each list}} {{ this.field }} {{/each}}` — pętla z item scope (nested loops supported)
+
+Workflow:
+
+1. Edytuj `templates/responses/<name>.md` (frontmatter: `id`, `description`, `version`, `vars`).
+2. Preview z fixture: `npm run template:render -- --name=<name> --vars=tests/fixtures/<name>.json`.
+3. W tool handler: `import { templateResponse } from '../shared/response-template.js'` → `return templateResponse('analyze-code-finding', vars, metaInput)`.
+4. Vitest spec pinuje contract: [`src/shared/response-template.spec.ts`](src/shared/response-template.spec.ts) (13 testów).
+
+Dostępne templates: `npm run template:list` (analyze-code-finding, propose-fix-context, compliance-finding, error).
+
+Gdy dodajesz template — dodaj fixture w `tests/fixtures/<name>.json` żeby preview działało. Gdy zmieniasz template — bump `version:` w frontmatter.
+
 ## Pliki do załadowania na początku sesji
 
 - [`README.md`](README.md) — overview od strony użytkownika.
