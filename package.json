@@ -61,6 +61,8 @@
     "token:budget": "node tools/scripts/token-budget.mjs",
     "workflow:new-tool": "node tools/scripts/workflow-new-tool.mjs",
     "workflow:audit-sandbox": "node tools/scripts/workflow-audit-sandbox.mjs",
+    "extract:analyze": "node dist/extract-analyze.js",
+    "extract:compliance": "node dist/extract-compliance.js",
     "cdk:compile": "node dist/cli/mcp-devtools-cdk.js compile",
     "verify": "npm run format:check && npm run lint && npm run typecheck && npm test && npm run build && npm run ai:validate && npm run validate:inputs"
   },
