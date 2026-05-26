@@ -33,10 +33,28 @@ Główny klient: **GitHub Copilot** w **VS Code ≥ 1.121** i **IntelliJ IDEA �
    `npm run format:check && npm run lint && npm run typecheck && npm test && npm run build`.
 9. **Conventional Commits** dla każdego commitu (wymuszane przez husky `commit-msg` hook + commitlint).
 
+## Chat modes (VS Code Copilot)
+
+Każdy specjalista ma dedykowany **custom chat mode** w [`.github/chatmodes/`](.github/chatmodes/) — wybierasz go z dropdownu chatu w VS Code:
+
+| Mode                                                                 | Kiedy używać                                                                             |
+| -------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| [`orchestrator`](.github/chatmodes/orchestrator.chatmode.md)         | multi-step zadania, plan-first, koordynacja specjalistów, **routing dla create-new-app** |
+| [`architect`](.github/chatmodes/architect.chatmode.md)               | shape rozwiązania, ADR, performance budgets, trust boundaries                            |
+| [`app-scaffolder`](.github/chatmodes/app-scaffolder.chatmode.md)     | **nowa aplikacja / biblioteka / serwer / CDK stack** od zera w house-style               |
+| [`integrator`](.github/chatmodes/integrator.chatmode.md)             | wiring scaffold w prod dev loop (Copilot, MCP, CI, deployment)                           |
+| [`tool-author`](.github/chatmodes/tool-author.chatmode.md)           | implementacja narzędzia MCP w istniejącym serwerze                                       |
+| [`security-auditor`](.github/chatmodes/security-auditor.chatmode.md) | sandbox / SSRF / write-guard / STRIDE per asset                                          |
+
+VS Code musi mieć włączone `chat.modeFilesLocations` w [`.vscode/settings.json`](.vscode/settings.json).
+
+Inne hosty MCP (Claude Desktop, Cursor, własny SDK) nie czytają chatmodes — czytają `AGENTS.md` + `.github/copilot-instructions.md` jako fallback.
+
 ## Pliki do załadowania na początku sesji
 
 - [`README.md`](README.md) — overview od strony użytkownika.
 - [`.github/copilot-instructions.md`](.github/copilot-instructions.md) — rulebook agenta (najwyższy priorytet dla Copilot).
+- [`.github/chatmodes/`](.github/chatmodes/) — per-specjalista chat modes (orchestrator, architect, app-scaffolder, integrator, tool-author, security-auditor).
 - [`.github/instructions/`](.github/instructions/) — zakresowe reguły aplikowane przez glob `applyTo`:
   - [`core.instructions.md`](.github/instructions/core.instructions.md) — DRY/SOLID/KISS/YAGNI.
   - [`security.instructions.md`](.github/instructions/security.instructions.md) — sandbox FS, SSRF, secrets policy.

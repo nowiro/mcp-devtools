@@ -92,6 +92,21 @@ Użyj `npm run commit` (commitizen) lub pisz ręcznie.
 5. Nowy scope w `commitlint.config.mjs`.
 6. `npm run verify`.
 
+## Chat modes (VS Code Copilot)
+
+Każdy specjalista ma dedykowany **custom chat mode** w [`.github/chatmodes/`](chatmodes/) — wybierasz go z dropdownu chatu:
+
+| Mode                                                         | Kiedy używać                                                   |
+| ------------------------------------------------------------ | -------------------------------------------------------------- |
+| [`orchestrator`](chatmodes/orchestrator.chatmode.md)         | multi-step zadania, plan-first, **routing dla create-new-app** |
+| [`architect`](chatmodes/architect.chatmode.md)               | shape rozwiązania, ADR, performance budgets                    |
+| [`app-scaffolder`](chatmodes/app-scaffolder.chatmode.md)     | **nowa aplikacja / lib / serwer / CDK stack** od zera          |
+| [`integrator`](chatmodes/integrator.chatmode.md)             | wiring scaffold w prod dev loop (Copilot, MCP, CI)             |
+| [`tool-author`](chatmodes/tool-author.chatmode.md)           | implementacja narzędzia MCP w istniejącym serwerze             |
+| [`security-auditor`](chatmodes/security-auditor.chatmode.md) | sandbox / SSRF / write-guard / STRIDE per asset                |
+
+Włączane przez `chat.modeFilesLocations` w [`.vscode/settings.json`](../.vscode/settings.json).
+
 ## Czytaj na początku sesji
 
 1. [`.github/instructions/core.instructions.md`](instructions/core.instructions.md) — cross-cutting reguły.
