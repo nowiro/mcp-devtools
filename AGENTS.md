@@ -72,6 +72,19 @@ Dostępne templates: `npm run template:list` (analyze-code-finding, propose-fix-
 
 Gdy dodajesz template — dodaj fixture w `tests/fixtures/<name>.json` żeby preview działało. Gdy zmieniasz template — bump `version:` w frontmatter.
 
+## Workflow scripts (deterministic scaffolders)
+
+Każdy często-używany workflow z `.github/prompts/` ma równoległy skrypt TypeScript w `tools/scripts/workflow-<name>.mjs`. Skrypty są **deterministyczną siatką** — scaffoldują strukturę (pliki, frontmatter, snippety kodu, plan markdown) tak, żeby LLM (Copilot) nie palił tokenów na decyzje o kształcie.
+
+| Skrypt                           | Workflow         | Kiedy używać                                                                                                  |
+| -------------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------- |
+| `npm run workflow:new-tool`      | `/new-tool`      | nowy MCP tool (src/tools/<slug>.ts stub + spec + plan + test stub)                                            |
+| `npm run workflow:audit-sandbox` | `/audit-sandbox` | static scan tools/ za naruszeniami sandbox FS (raw fs, path.resolve bez assertWithinSandbox, glob over-reach) |
+
+**Zasada użycia:** zawsze próbuj skrypta najpierw — wynik jest reproducible niezależnie od modelu LLM. Agent (`tool-author`, `security-auditor`) podejmuje akcję dopiero **po** scaffoldzie.
+
+`workflow:audit-sandbox` można też wpiąć w CI gate (exit 1 jeśli high findings). Raport ląduje w `docs/runs/<date>-audit-sandbox.md`.
+
 ## Deterministic gates (validate + audit)
 
 | Skrypt                    | Co robi                                                                                                                                 |
