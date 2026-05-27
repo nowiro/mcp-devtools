@@ -130,7 +130,9 @@ Network env vars (do użycia gdy ktoś doda tool z siecią) → [docs/reference/
 npm run doctor
 ```
 
-Sprawdza: wersja Node, `PROJECT_ROOT` resolution, Playwright availability w PATH, OS specifics. Działa cross-platform. Exit 0 = ready, exit 1 = wymaga uwagi.
+Sprawdza: terminal encoding (Windows), wersja Node, `PROJECT_ROOT` resolution, Playwright availability w PATH, OS specifics. Działa cross-platform. Exit 0 = ready, exit 1 = wymaga uwagi.
+
+**Windows tip:** skrypty emitują UTF-8 glyphs (`✓ ✗ ⚠ ▶ ─`). Domyślny `cmd.exe` i PowerShell 5.1 mają codepage 437/1252 i wyświetlą mojibake. Użyj **Windows Terminal + PowerShell 7+** (auto-detected) albo uruchom `chcp 65001` przed skryptem.
 
 ## Verify
 

@@ -59,7 +59,27 @@ function step(name) {
   process.stdout.write(`\n${c.bold(`▶ ${name}`)}\n`);
 }
 
-// ── 1. Node version ─────────────────────────────────────────────────────────
+// ── 1. Terminal encoding (Windows-only warning) ─────────────────────────────
+// Scripts emit UTF-8 glyphs (✓ ✗ ⚠ ▶ ─). cmd.exe + PowerShell 5.1 default to
+// codepage 437/1252 and will render mojibake. Modern terminals (Windows Terminal,
+// PS 7+, VS Code integrated, ConEmu) advertise themselves via env vars.
+if (IS_WIN) {
+  step('Terminal encoding');
+  const modernTerminal =
+    process.env['WT_SESSION'] || process.env['TERM_PROGRAM'] === 'vscode' || process.env['ConEmuPID'];
+  if (modernTerminal) {
+    emit('terminal', 'ok', 'Modern Windows terminal detected (UTF-8 capable)');
+  } else {
+    emit(
+      'terminal',
+      'warn',
+      'Legacy console detected (cmd.exe or PowerShell 5.1)',
+      'Use Windows Terminal + PowerShell 7+ for proper UTF-8 rendering. Workaround: `chcp 65001` before running scripts.',
+    );
+  }
+}
+
+// ── 2. Node version ─────────────────────────────────────────────────────────
 step('Node version');
 const pkgJson = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8'));
 const enginesNode = pkgJson.engines?.node;
@@ -74,12 +94,12 @@ if (!enginesNode) {
   emit('node', 'warn', `Node ${have} but engines.node requires ${enginesNode}`, 'Use nvm / volta / fnm to switch');
 }
 
-// ── 2. OS detection ─────────────────────────────────────────────────────────
+// ── 3. OS detection ─────────────────────────────────────────────────────────
 step('Operating system');
 const osName = IS_WIN ? `Windows ${release()}` : `${platform()} ${release()}`;
 emit('os', 'ok', osName, IS_WIN ? 'Using npx.cmd for spawn calls' : 'Using npx for spawn calls');
 
-// ── 3. Build artifacts ──────────────────────────────────────────────────────
+// ── 4. Build artifacts ──────────────────────────────────────────────────────
 step('Build artifacts');
 const distServer = join(ROOT, 'dist', 'server.js');
 if (existsSync(distServer)) {
@@ -96,7 +116,7 @@ if (missingTools.length === 0) {
   emit('build', 'err', `missing tools in dist/: ${missingTools.join(', ')}`, 'Run: npm run build');
 }
 
-// ── 4. PROJECT_ROOT ─────────────────────────────────────────────────────────
+// ── 5. PROJECT_ROOT ─────────────────────────────────────────────────────────
 step('PROJECT_ROOT sandbox');
 const projectRoot = process.env['PROJECT_ROOT'];
 if (!projectRoot) {
@@ -110,7 +130,7 @@ if (!projectRoot) {
   }
 }
 
-// ── 5. Playwright availability ──────────────────────────────────────────────
+// ── 6. Playwright availability ──────────────────────────────────────────────
 step('Playwright');
 // Look for @playwright/test in devDependencies and node_modules.
 const hasPlaywrightDep = !!pkgJson.devDependencies?.['@playwright/test'];
@@ -120,7 +140,11 @@ if (hasPlaywrightDep && hasPlaywrightInstalled) {
 } else if (hasPlaywrightDep) {
   emit('playwright', 'warn', `@playwright/test declared but not installed`, 'Run: npm ci');
 } else {
-  emit('playwright', 'warn', `@playwright/test not in devDependencies — run_playwright tool will fail in target repo unless they have it`);
+  emit(
+    'playwright',
+    'warn',
+    `@playwright/test not in devDependencies — run_playwright tool will fail in target repo unless they have it`,
+  );
 }
 
 // Look for npx in PATH.
@@ -133,7 +157,7 @@ if (npxFound) {
   emit('playwright', 'err', `${npxName} not in PATH`, 'Reinstall Node — npx ships with npm');
 }
 
-// ── 6. IDE config files ─────────────────────────────────────────────────────
+// ── 7. IDE config files ─────────────────────────────────────────────────────
 step('IDE config');
 const ideFiles = [
   { path: '.vscode/mcp.json', label: 'VS Code MCP registry' },
@@ -149,7 +173,7 @@ for (const { path, label } of ideFiles) {
   }
 }
 
-// ── 7. User home for config (informational) ─────────────────────────────────
+// ── 8. User home for config (informational) ─────────────────────────────────
 step('User home');
 emit(
   'home',
