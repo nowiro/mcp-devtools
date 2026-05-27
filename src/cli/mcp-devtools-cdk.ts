@@ -16,6 +16,11 @@
  * Exit codes:
  *   0 — all workflows compiled and written.
  *   1 — discovery / import / render / write failed.
+ *
+ * Layout note: today we have 2 commands (compile + help) in one file. When the
+ * CLI grows to 4+ commands, split into `src/cli/commands/<verb>.ts` mirroring
+ * the `github/spec-kit` 0.8.14 refactor (`commands/init.py` extracted from
+ * `__init__.py`). YAGNI until then — single file is easier to read.
  */
 import { readdir } from 'node:fs/promises';
 import nodePath from 'node:path';

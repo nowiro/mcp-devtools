@@ -158,7 +158,7 @@ function parseReporterOutput(stdout: string, reporter: z.infer<typeof Reporter>,
 export const definition: ToolDefinition<InputT, OutputT> = {
   name: 'run_playwright',
   description:
-    'Run Playwright tests with optional sharding (--shard i/N) and reporter selection (json | junit | list | line). Returns parsed pass/fail/flaky counts.',
+    'Run Playwright tests via npx subprocess (slow, default timeout 120s; expensive — spawns full browser). Supports --shard i/N for CI parallelism and reporter selection (json | junit | list | line). Returns parsed pass/fail/flaky counts plus capped stdout.',
   inputSchema: Input,
   outputSchema: Output,
   async handle(input, ctx) {

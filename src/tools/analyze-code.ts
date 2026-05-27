@@ -275,7 +275,7 @@ function scanLines(
 export const definition: ToolDefinition<InputT, OutputT> = {
   name: 'analyze_code',
   description:
-    'Walk a TS/TSX/JS/JSX/HTML/Vue tree; report generic findings (console.*, TODO/FIXME, dangerouslySetInnerHTML) plus per-framework metrics + legacy patterns. Frameworks: angular, react, vue (auto-detected by default). mtime-cached.',
+    'Static analysis of a TS/TSX/JS/JSX/HTML/Vue tree (slow O(files × depth), capped at depth=5). Reports generic findings (console.*, TODO/FIXME, dangerouslySetInnerHTML) + per-framework metrics + legacy patterns. Frameworks: angular/react/vue (auto-detected). mtime-cached — cache hits are O(1).',
   inputSchema: Input,
   outputSchema: Output,
   async handle(input, ctx) {

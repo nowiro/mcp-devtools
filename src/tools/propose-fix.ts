@@ -90,7 +90,7 @@ export async function sliceAround(path: string, focusLines: number[], window = 2
 export const definition: ToolDefinition<InputT, OutputT> = {
   name: 'propose_fix',
   description:
-    'Assemble bug-fix context (failing test, source, rules) for one OR many files. Slices ±N lines around fault locations parsed from failure_text.',
+    'Assemble bug-fix context by slicing ±N lines around fault locations (O(files × window), bounded by paths.length). Reads test, source, rules; parses fault locs from failure_text. Deterministic — does not call LLM, returns context blob for the caller to reason over.',
   inputSchema: Input,
   outputSchema: Output,
   async handle(input, ctx) {
