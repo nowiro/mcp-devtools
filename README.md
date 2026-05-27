@@ -193,6 +193,24 @@ Serwer eksponuje **MCP Prompts** (`prompts/list` + `prompts/get`) — gotowe sla
 
 Token saving: zamiast "uruchom analyze_code dla całego src, potem compliance vs docs/standards, połącz wyniki, zaproponuj go/no-go" (~50 tokens), wpisujesz `/full-audit` (~3 tokens). Plus prompt jest **cached** w Copilot Chat — nie tracimy contextu na "powtórz".
 
+## MCP Resources — preconfigured docs context
+
+Serwer eksponuje **MCP Resources** (`resources/list` + `resources/read`) — read-only docs ładowane przez Copilot jako deterministyczny kontekst. Zamiast pytać LLM "jakie findings analyze_code rozpoznaje" i tracić tokeny na halucynację, Copilot pobiera markdown raz, cache'uje na sesję i ma go pod ręką.
+
+| URI                                             | Co zawiera                                                                                |
+| ----------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `mcp-devtools://docs/analyze-findings-catalog`  | Wszystkie finding kinds `analyze_code` + severities + framework auto-detection + metrics. |
+| `mcp-devtools://docs/compliance-rules-spec`     | YAML frontmatter dla rule files (must_exist / must_not_exist / pattern) + SARIF output.   |
+| `mcp-devtools://docs/propose-fix-context-guide` | Jak `propose_fix` komponuje context (test + paths + rules + window).                      |
+
+**Wzorzec użycia w VS Code:**
+
+1. Otwórz Copilot Chat (`Ctrl+Alt+I`).
+2. Wpisz `#mcp.resource` (lub paperclip → "MCP Resource") i wybierz np. `mcp-devtools://docs/compliance-rules-spec`.
+3. Copilot ładuje markdown raz i trzyma w cache. Następne "napisz mi rule plik" / "co znaczy unknown w compliance" — bez halucynacji.
+
+Token saving: catalog ma ~80 LoC. Załaduj raz (~500 tok), używaj wielokrotnie. Bez resources LLM próbuje wywnioskować shape z nazwy `compliance_report` + przykładów → halucynacja schemy → retry. Pliki źródłowe w [`templates/resources/`](templates/resources/).
+
 ## Workflow scripts — deterministic scaffolders
 
 Dla najczęściej powtarzanych workflow z `.github/prompts/` repo dostarcza **deterministic scaffolders** w `tools/scripts/workflow-*.mjs`. Skrypty tworzą strukturę (folders, frontmatter, snippety, plan markdown) zanim Copilot zacznie pracować — agent dostaje gotowy szkielet zamiast wymyślać shape. Oszczędność tokenów + reproducible output niezależnie od modelu LLM.

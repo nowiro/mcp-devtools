@@ -38,7 +38,7 @@ Jeśli stack nie pasuje do żadnego templatu — **stop**, eskaluj do `architect
    - `.github/copilot-instructions.md` (single source of truth).
    - `.github/instructions/` (per-rule auto-apply z poprawnym `applyTo` glob).
    - `.github/prompts/` (`mode: agent|edit|ask`).
-   - `.github/chatmodes/` (per-agent custom modes).
+   - `.github/agents/` (per-agent custom modes — VS Code 1.121+ format).
 5. **Deterministic scripts** w `tools/scripts/`: minimum `bootstrap.mjs`, `doctor.mjs`, `validate-ai-config.mjs`.
 6. **Docs skeleton:** `README.md` (one-screen quickstart), `SECURITY.md`, `CHANGELOG.md` (Keep a Changelog), `CONTRIBUTING.md`, `SUPPORT.md`.
 7. **CI:** `.github/workflows/ci.yml` (lint + typecheck + test + build na PR i `main`), gitleaks weekly, codeql weekly.
@@ -47,13 +47,13 @@ Jeśli stack nie pasuje do żadnego templatu — **stop**, eskaluj do `architect
 ## Workflow
 
 1. **Read plan markdown** podany w `plan:` orchestratora. Wyciągnij: nazwę repo (slug), template, target Node/npm.
-2. **Sprawdź `architect`'s ADR** w `docs/adr/` — musi istnieć dla nietrywialnych decyzji.
+2. **Sprawdź `architect`'s plan** w `docs/specs/<slug>/plan.md` — sekcja "Decisions" musi istnieć dla nietrywialnych decyzji.
 3. **Sprawdź czy target dir nie istnieje** — odmów scaffoldu jeśli `C:\github\<slug>\` już ma `package.json`. Eskaluj.
 4. **Scaffold w kolejności:**
    1. Toolchain pinning (`.nvmrc`, `packageManager`).
    2. `package.json` z baseline scripts (`bootstrap`, `lint`, `typecheck`, `test`, `build`, `verify`, `commit`).
    3. Config files (`tsconfig.json`, `eslint.config.js`, `.prettierrc`, `commitlint.config.cjs`, `husky/`).
-   4. AI surfaces (`AGENTS.md`, `.github/copilot-instructions.md`, `instructions/`, `prompts/`, `chatmodes/`).
+   4. AI surfaces (`AGENTS.md`, `.github/copilot-instructions.md`, `instructions/`, `prompts/`, `agents/`).
    5. VS Code (`.vscode/settings.json`, `extensions.json`, `mcp.json`).
    6. Template-specific code.
    7. Tests skeleton z minimum 1 sample test (musi pass).
@@ -65,7 +65,7 @@ Jeśli stack nie pasuje do żadnego templatu — **stop**, eskaluj do `architect
 
 ## Hard rules
 
-- ✅ NIGDY nie scaffolduj bez planu z architect ADR.
+- ✅ NIGDY nie scaffolduj bez planu z architect ("Decisions" sekcją).
 - ✅ ZAWSZE uruchom `npm run verify` przed hand-off — broken scaffold to anti-pattern.
 - ✅ Każdy scaffold tworzy minimum 1 sample test żeby `npm test` zwracał > 0 passing.
 - ✅ Wszystkie tokens / secrets w `<home>/.config/<repo-slug>/config.json`, nigdy w tracked files.

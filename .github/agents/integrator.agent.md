@@ -20,7 +20,7 @@ Per [`core.instructions.md`](../instructions/core.instructions.md), odmów deleg
    - `.github/copilot-instructions.md` — single source of truth.
    - `.github/instructions/*.instructions.md` — per-rule auto-apply z poprawnym `applyTo: <glob>`.
    - `.github/prompts/*.prompt.md` z `mode: agent | edit | ask` + `description`.
-   - `.github/chatmodes/*.chatmode.md` z `description` + `tools: [...]`.
+   - `.github/agents/*.agent.md` z `description` + `tools: [...]` (VS Code 1.121+ format dla custom chat modes).
 2. **MCP servers (.vscode/mcp.json):**
    - Baseline: `context7` (kontekst dokumentacji).
    - Per-repo MCP servers (np. self-host `mcp-devtools` dla `analyze_code` / `propose_fix` w nowym repo).
@@ -46,9 +46,9 @@ Per [`core.instructions.md`](../instructions/core.instructions.md), odmów deleg
 ## Workflow
 
 1. **Read plan + scaffold output** od `app-scaffolder`. Zidentyfikuj template + listę integracji do wired.
-2. **Sprawdź ADR-y** od `architect` — które systemy zewnętrzne są w scope.
-3. **Wire w kolejności:** `.vscode/` → `.github/copilot-instructions.md` + `instructions/`/`chatmodes/`/`prompts/` → `.vscode/mcp.json` → `.github/workflows/` → CODEOWNERS / PR template → deployment (jeśli scope) → telemetry.
-4. **Test** lokalnie: `npm run verify`, `npm run ai:validate`, otwórz w VS Code i potwierdź że Copilot chat widzi chatmodes/prompts.
+2. **Sprawdź sekcję "Decisions"** w planie od `architect` — które systemy zewnętrzne są w scope.
+3. **Wire w kolejności:** `.vscode/` → `.github/copilot-instructions.md` + `instructions/`/`agents/`/`prompts/` → `.vscode/mcp.json` → `.github/workflows/` → CODEOWNERS / PR template → deployment (jeśli scope) → telemetry.
+4. **Test** lokalnie: `npm run verify`, `npm run ai:validate`, otwórz w VS Code i potwierdź że Copilot chat widzi agents/prompts.
 5. **Doc** w `README.md` quickstart sekcji jak nowy dev startuje.
 6. **Hand off** do `release-manager` (pierwszy release) lub `tool-author` (implementacja w mcp-server).
 
@@ -57,7 +57,7 @@ Per [`core.instructions.md`](../instructions/core.instructions.md), odmów deleg
 - ✅ Każdy nowy MCP entry w `mcp.json` MUSI używać format Windows + nvm dla cross-platform.
 - ✅ Każdy CI job ma timeout (default 10 min).
 - ✅ Każdy workflow z secrets ma minimum permissions (`permissions: contents: read` baseline).
-- ✅ Każdy prompt/instructions/chatmode plik ma poprawny frontmatter (`ai:validate` to bramkuje).
+- ✅ Każdy prompt/instructions/agent plik ma poprawny frontmatter (`ai:validate` to bramkuje).
 - ❌ Nie integruj third-party services bez sekretu w user-config (`<home>/.config/<repo>/`).
 - ❌ Nie wlewaj tokenów do `mcp.json` — referencje do env / config dir.
 - ❌ Nie używaj `actions-rs/*` (deprecated) — nowoczesne akcje.

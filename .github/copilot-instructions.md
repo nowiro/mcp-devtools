@@ -92,6 +92,23 @@ Użyj `npm run commit` (commitizen) lub pisz ręcznie.
 5. Nowy scope w `commitlint.config.mjs`.
 6. `npm run verify`.
 
+## Dodawanie nowego resource (read-only doc)
+
+Resources to obok tools i prompts trzecia MCP capability — Copilot ładuje markdown raz, cache'uje na sesję, używa wielokrotnie bez halucynacji shape'u.
+
+1. Markdown w `templates/resources/<slug>.md` — dowolna treść (cheatsheet, spec, guide), bez frontmatter.
+2. Rejestracja w `src/server.ts` przez `defineMarkdownResource({ uri, name, description, file })` z `src/shared/resource.ts`. Konwencja URI: `mcp-devtools://docs/<slug-kebab>`.
+3. Dopisz do tabeli "MCP Resources" w `README.md` (sekcja "MCP Resources — preconfigured docs context").
+4. `npm run verify`.
+
+Resources nie wymagają testów spec (są deklaratywne — typecheck wystarcza). Edytowalne live bez restartu Copilota.
+
+## Dodawanie nowego prompt (slash-command)
+
+1. `definePrompt({ name, description, arguments?, buildMessages })` z `src/shared/prompt.ts`, dorzucone do array `prompts` w `src/server.ts`.
+2. Wpis w tabeli "MCP Prompts" w `README.md`.
+3. `npm run verify`.
+
 ## Custom agents (VS Code Copilot)
 
 Każdy specjalista ma dedykowany **custom agent** w [`.github/agents/`](agents/) — wybierasz go z dropdownu chatu:

@@ -16,8 +16,8 @@ Uruchom `npm run doctor` jako pierwsze — sprawdza Node version, `PROJECT_ROOT`
 
 Otwórz issue używając templatek:
 
-- [Bug report](https://github.com/<your-org>/mcp-devtools/issues/new?template=bug.yml)
-- [Feature request (new tool)](https://github.com/<your-org>/mcp-devtools/issues/new?template=feature.yml)
+- [Bug report](https://github.com/nowiro/mcp-devtools/issues/new?template=bug.yml)
+- [Feature request (new tool)](https://github.com/nowiro/mcp-devtools/issues/new?template=feature.yml)
 
 Przed otwarciem: poszukaj w istniejących issues (otwartych i zamkniętych) — duplikaty trafiają na koniec kolejki. Załącz output `npm run doctor` i informację o OS (`uname -a` / `[System.Environment]::OSVersion`).
 

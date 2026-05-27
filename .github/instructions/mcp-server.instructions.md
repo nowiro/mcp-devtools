@@ -103,7 +103,21 @@ Każda odpowiedź jest wrapowana w:
 - ❌ Hardcoded ścieżki bezwzględne.
 - ❌ Brak Zod schema na granicy narzędzia.
 
-## 9. Dodawanie nowego narzędzia
+## 9. MCP Prompts + Resources (capabilities obok tools)
+
+Serwer wystawia trzy capabilities — wszystkie zarejestrowane w `src/server.ts`:
+
+- **Tools** (`tools/list` + `tools/call`) — operacje (analyze_code, propose_fix, …). Required.
+- **Prompts** (`prompts/list` + `prompts/get`) — preconfigured slash-commands (`/pre-commit-check`, `/full-audit`). Zdefiniuj przez `definePrompt({…})` z `src/shared/prompt.ts`, dorzuć do tablicy `prompts` w `src/server.ts`.
+- **Resources** (`resources/list` + `resources/read`) — read-only docs cache'owane przez Copilot (catalog findings, rules spec, context guide). Najprościej: markdown w `templates/resources/<slug>.md` + `defineMarkdownResource({ uri, name, description, file })` z `src/shared/resource.ts`. Helper resolwuje path z `import.meta.url` (cross-platform). Konwencja URI: `mcp-devtools://docs/<slug-kebab>`, MIME `text/markdown`.
+
+Capabilities deklarowane w konstruktorze `Server`:
+
+```ts
+new Server({ name, version }, { capabilities: { tools: {}, prompts: {}, resources: {} } });
+```
+
+## 10. Dodawanie nowego narzędzia
 
 Checklist:
 

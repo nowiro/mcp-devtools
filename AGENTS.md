@@ -116,6 +116,6 @@ Każdy często-używany workflow z `.github/prompts/` ma równoległy skrypt Typ
 
 ## Koordynacja z innymi repo
 
-Repo jest **standalone**. Sibling [`mcp-alm`](https://github.com/<your-org>/mcp-alm) wystawia 5 ALM connectorów (Jira / Confluence / Figma / Sonar / GitLab) — `.vscode/mcp.json` w tym repo opcjonalnie je rejestruje (pyta o ścieżkę przez `${input:mcp-alm-path}`).
+Repo jest **standalone**. Sibling [`mcp-alm`](https://github.com/nowiro/mcp-alm) wystawia 5 ALM connectorów (Jira / Confluence / Figma / Sonar / GitLab) — `.vscode/mcp.json` w tym repo opcjonalnie je rejestruje (pyta o ścieżkę przez `${input:mcp-alm-path}`).
 
 Jeśli dodajesz tool z siecią, skopiuj wzorzec z `mcp-alm/src/shared/http-client.ts` (sibling repo, MIT) — SSRF guard, `HTTPS_PROXY`, `NODE_EXTRA_CA_CERTS` już obsłużone.

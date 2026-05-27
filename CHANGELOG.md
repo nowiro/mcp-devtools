@@ -6,6 +6,11 @@ All notable changes are documented here. Format: [Keep a Changelog](https://keep
 
 ### Added
 
+- **MCP Resources** (`resources/list` + `resources/read`) — serwer eksponuje read-only docs ładowane przez Copilot jako deterministyczny kontekst. URIs: `mcp-devtools://docs/{analyze-findings-catalog,compliance-rules-spec,propose-fix-context-guide}`. Parity z `mcp-alm` — ta sama shape definicji, mirror użycia w Copilot Chat (`#mcp.resource`).
+- **`src/shared/resource.ts`** — `ResourceDefinition` + `defineResource` + `defineMarkdownResource({ uri, name, description, file })` resolwujący path z `templates/resources/<file>.md` przez `import.meta.url` (cross-platform, niezależne od `cwd`).
+- **`templates/resources/`** — 3 markdown źródła: `analyze-findings-catalog.md` (finding kinds + framework detection + metrics), `compliance-rules-spec.md` (rule file format + SARIF), `propose-fix-context-guide.md` (input shape + sandbox + workflow). Edytowalne bez restartu Copilota.
+- **`src/server.ts`** — handlery `ListResourcesRequestSchema` + `ReadResourceRequestSchema` zarejestrowane; capability `resources: {}` dodane do `Server` constructora.
+- **`README.md`** — sekcja "MCP Resources — preconfigured docs context" z tabelą URI + wzorcem użycia.
 - **`tools/scripts/validate-ai-config.mjs`** — walidacja konfiguracji Copilot (`.vscode/mcp.json`, frontmatter `.github/instructions/*.instructions.md`, `prompts/*.prompt.md`). Run: `npm run ai:validate`.
 - **`tools/scripts/dev-client.mjs`** — minimalny klient stdio do ręcznego testowania serwera MCP bez IDE. `node tools/scripts/dev-client.mjs [tool] ['<json-args>']`.
 - **`.github/workflows/pr-checks.yml`** — weryfikacja conventional commits w PR-ach + format tytułu PR (`amannn/action-semantic-pull-request`) + secret scan (gitleaks).
