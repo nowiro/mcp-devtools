@@ -19,7 +19,9 @@ import {
   CallToolRequestSchema,
   GetPromptRequestSchema,
   ListPromptsRequestSchema,
+  ListResourcesRequestSchema,
   ListToolsRequestSchema,
+  ReadResourceRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 import nodePath from 'node:path';
 import { z } from 'zod';
@@ -29,6 +31,7 @@ import { correlationIdFromMeta } from './shared/correlation.js';
 import { compactJson } from './shared/llm-optimize.js';
 import { log } from './shared/log.js';
 import { definePrompt, type PromptDefinition } from './shared/prompt.js';
+import { defineMarkdownResource, type ResourceDefinition } from './shared/resource.js';
 import { buildMeta, wrapResponse } from './shared/response-meta.js';
 import { sessionTracker } from './shared/session-tracker.js';
 import type { ToolContext, ToolDefinition } from './shared/types.js';
@@ -176,12 +179,41 @@ ${args['failureText']}
 
 const promptsByName = new Map(prompts.map((p) => [p.name, p]));
 
+// ── resources (MCP `resources/list` + `resources/read`) ──────────────────
+//
+// Read-only docs które Copilot ładuje raz, cache'uje na sesję, używa
+// wielokrotnie — bez halucynacji shape'u toolowych output'ów.
+
+const resources: ResourceDefinition[] = [
+  defineMarkdownResource({
+    uri: 'mcp-devtools://docs/analyze-findings-catalog',
+    name: 'analyze_code findings catalog',
+    description: 'Wszystkie finding kinds + severities + framework auto-detection + per-framework metrics.',
+    file: 'analyze-findings-catalog.md',
+  }),
+  defineMarkdownResource({
+    uri: 'mcp-devtools://docs/compliance-rules-spec',
+    name: 'compliance_report rules spec',
+    description:
+      'YAML frontmatter format dla `*.md` rule files (must_exist / must_not_exist / pattern) + SARIF output.',
+    file: 'compliance-rules-spec.md',
+  }),
+  defineMarkdownResource({
+    uri: 'mcp-devtools://docs/propose-fix-context-guide',
+    name: 'propose_fix context guide',
+    description: 'Jak `propose_fix` komponuje deterministyczny kontekst dla LLM (test + paths + rules + window).',
+    file: 'propose-fix-context-guide.md',
+  }),
+];
+
+const resourcesByUri = new Map(resources.map((r) => [r.uri, r]));
+
 async function main(): Promise<void> {
   const byName = new Map(tools.map((t) => [t.name, t]));
 
   const server = new Server(
     { name: SERVER_NAME, version: SERVER_VERSION },
-    { capabilities: { tools: {}, prompts: {} } },
+    { capabilities: { tools: {}, prompts: {}, resources: {} } },
   );
 
   server.setRequestHandler(ListToolsRequestSchema, async () => ({
@@ -215,6 +247,24 @@ async function main(): Promise<void> {
     return {
       description: prompt.description,
       messages: prompt.buildMessages(args),
+    };
+  });
+
+  server.setRequestHandler(ListResourcesRequestSchema, async () => ({
+    resources: resources.map((r) => ({
+      uri: r.uri,
+      name: r.name,
+      description: r.description,
+      mimeType: r.mimeType,
+    })),
+  }));
+
+  server.setRequestHandler(ReadResourceRequestSchema, async (req) => {
+    const resource = resourcesByUri.get(req.params.uri);
+    if (!resource) throw new Error(`Unknown resource: ${req.params.uri}`);
+    const text = await resource.read();
+    return {
+      contents: [{ uri: resource.uri, mimeType: resource.mimeType, text }],
     };
   });
 
