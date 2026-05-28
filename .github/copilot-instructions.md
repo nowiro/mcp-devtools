@@ -1,141 +1,63 @@
 # GitHub Copilot — mcp-devtools
 
-> Czytaj ten plik na początku każdej sesji. Pełne reguły żyją w `.github/instructions/`.
+> Przeczytaj **najpierw** w każdej sesji. Top-level digest; szczegóły w `.github/instructions/*.md` (auto-loaded per `applyTo` glob) oraz `AGENTS.md`.
 
 ## Tożsamość
 
-Pracujesz w **mcp-devtools** — MCP server TypeScript (transport stdio) wystawiający 5 narzędzi developer-workflow:
+**mcp-devtools** — TypeScript / Node 22, jeden serwer MCP (transport stdio) z 5 narzędziami dev-workflow: `analyze_code`, `propose_fix`, `run_playwright`, `compliance_report`, `mcp-devtools.get_usage_history`. Cross-platform: Windows (PowerShell / Git Bash), macOS, Linux.
 
-| Narzędzie                        | Opis                                                                                                            |
-| -------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| `analyze_code`                   | Statyczna analiza TS/TSX/JS/JSX/HTML/Vue. Per-framework metrics (Angular/React/Vue, auto-detect). mtime-cached. |
-| `propose_fix`                    | Zbiera kontekst bug-fix (failing test + source + rules) dla LLM caller'a.                                       |
-| `run_playwright`                 | Uruchamia `npx playwright test`. Cross-platform: `npx.cmd` na Windows, `npx` na POSIX.                          |
-| `compliance_report`              | Scoring repo vs `*.md` rules z YAML frontmatter (`must_exist` / `must_not_exist` / `pattern`).                  |
-| `mcp-devtools.get_usage_history` | In-memory session ledger (FIFO 1000 rekordów).                                                                  |
+Każda odpowiedź wrapowana w `{ data, _meta: { tokensEstimate, correlationId, durationMs } }`.
 
-Każda odpowiedź jest wrapowana w `{ data, _meta: { tokensEstimate, correlationId, durationMs } }`.
+Klient: **GitHub Copilot** w VS Code ≥ 1.121, IntelliJ ≥ 2026.1.2, Eclipse (od 2026-05-21). Inne MCP hosty (Claude Desktop, Cursor) też działają.
 
-## Klient
+## Język
 
-- **GitHub Copilot Chat** w **VS Code ≥ 1.121**, **IntelliJ IDEA ≥ 2026.1.2** lub **Eclipse** (plugin Copilot for Eclipse open-sourced 2026-05-21). Wszystkie mają natywny MCP picker.
-- Cross-platform: Windows (PowerShell / Git Bash), macOS (zsh / bash), Linux (bash).
-- Konfiguracja IDE: `.vscode/mcp.json` (VS Code) i `.idea/mcp-servers.example.xml` (IntelliJ).
+- **Czat: polski.** Odpowiadaj PL dopóki user nie przełączy.
+- **Kod, git, MCP tool `description` strings, identyfikatory: angielski.** PL tokenizuje ~1.4× drożej.
 
-## Preferencje językowe
+## Twarde reguły (must)
 
-- **Czat: polski.**
-- **Kod, git commits, MCP tool descriptions, identyfikatory: angielski.**
-- Szczegóły → [`.github/instructions/language.instructions.md`](instructions/language.instructions.md).
+- ✅ Czytaj kod przed deklarowaniem że znasz; najmniejsza rozsądna zmiana.
+- ✅ Narzędzia deterministyczne dla swoich inputs.
+- ✅ Każdy input walidowany Zod na granicy narzędzia (brak `any`).
+- ✅ Każde narzędzie czytające FS przechodzi przez `assertWithinSandbox(path, ctx.projectRoot, '<tool>')`.
+- ✅ DoD przed "done": `npm run verify` (format + lint + typecheck + test + build + ai:validate).
+- ❌ Nie zgaduj ścieżek / nazw funkcji / wersji.
+- ❌ Nie bypass git hooków (`--no-verify`).
+- ❌ Sekrety w tracked file — never.
+- ❌ Nie `console.log` do **stdout** w `src/server*.ts` / `src/tools/*.ts` (uszkadza MCP frame). Loguj JSON-line do stderr przez `src/shared/log.ts`.
+- ❌ Odczyt plików poza `PROJECT_ROOT` (sandbox enforcement).
+- ❌ Outbound HTTP z narzędzi (serwer offline-capable). Tool z siecią → skopiuj wzorzec z `mcp-alm/src/shared/http-client.ts`.
 
-## Twarde reguły
+## MCP capabilities trio
 
-- ✅ Czytaj kod zanim ogłosisz, że go znasz.
-- ✅ Najmniejsza rozsądna zmiana.
-- ✅ Narzędzia są deterministyczne dla swoich inputs.
-- ✅ Każdy input jest walidowany przez Zod na granicy narzędzia.
-- ✅ Każde narzędzie czytające FS przechodzi przez `resolveSandboxPath`.
-- ❌ Nigdy nie wymyślaj ścieżek plików, nazw funkcji, wersji pakietów.
-- ❌ Nigdy nie bypassuj hooków (`--no-verify`).
-- ❌ Nigdy nie umieszczaj sekretów w tracked files.
-- ❌ Pisanie do stdout z handlera narzędzia (stdout zarezerwowany dla transportu MCP — log idzie na stderr).
-- ❌ Czytanie plików poza `PROJECT_ROOT` (sandbox enforcement).
-- ❌ Outbound HTTP z narzędzi (serwer jest offline-capable; jeśli nowe narzędzie potrzebuje sieci — skopiuj wzorzec z `mcp-alm/src/shared/http-client.ts`).
+Serwer wpina **trzy** capability arrays do `new Server({ capabilities: { tools: {}, prompts: {}, resources: {} } })`:
 
-## Architektura
+- **`tools`** — operacje (`analyze_code`, `propose_fix`, …). Format `verb_noun` (snake_case), ledger tool używa prefixu `mcp-devtools.get_usage_history`.
+- **`prompts`** — slash-commands w Copilot Chat (`/pre-commit-check`, `/full-audit`, …). Definicja przez `definePrompt({…})` w `src/shared/prompt.ts`.
+- **`resources`** — read-only docs cache'owane przez hosta. URI: `mcp-devtools://docs/<slug-kebab>`. Helper `defineMarkdownResource({…})` z `src/shared/resource.ts` resolves path z `import.meta.url`.
 
-```
-src/
-  server.ts              # entry point — rejestruje narzędzia + startuje serwer MCP
-  tools/
-    analyze-code.ts      # + .spec.ts
-    propose-fix.ts       # + .spec.ts
-    run-playwright.ts    # + .spec.ts
-    compliance-report.ts # + .spec.ts
-  shared/
-    sandbox.ts           # resolveSandboxPath — path traversal guard
-    log.ts               # structured JSON logger → stderr, token redaction
-    session-tracker.ts   # in-memory FIFO ledger
-tools/scripts/
-  bootstrap.mjs          # npm run bootstrap — post-clone setup
-  doctor.mjs             # npm run doctor — cross-platform diagnostics
-  dev-client.mjs         # manual MCP client for testing without IDE
-  validate-ai-config.mjs # npm run ai:validate
-```
+Pełen kontrakt + naming → [`mcp-server.instructions.md`](instructions/mcp-server.instructions.md). Sandbox + tool contract → [`tool-contract.instructions.md`](instructions/tool-contract.instructions.md). Token shaping → [`llm-optimization.instructions.md`](instructions/llm-optimization.instructions.md).
 
-## Validation gate (Definition of Done)
+## Hierarchia reguł
 
-```sh
-npm run verify
-# = format:check + lint + typecheck + test + build + ai:validate
-```
+1. **Ten plik** — repo-wide.
+2. **`.github/instructions/*.instructions.md`** — auto per `applyTo` glob (load: `core`, `principles`, `security`, `tool-contract`, `mcp-server`, `llm-optimization`, `production-readiness`, `language`).
+3. **`.github/prompts/*.prompt.md`** — wywoływane `/<name>` (`/pre-commit-check`, `/flaky-investigation`, `/full-audit`, `/security-review`, `/mcp-devtools.usage-summary`).
+4. **`.github/agents/*.agent.md`** — picker w VS Code (`orchestrator`, `architect`, `app-scaffolder`, `integrator`, `tool-author`, `security-auditor`).
+5. **User prompt** — najwyższy.
 
-Jeśli którykolwiek krok zawiedzie — **nie** jesteś done.
+VS Code settings są w [`.vscode/settings.json`](../.vscode/settings.json). IntelliJ 2026.1.2+ ładuje ten plik automatycznie z pluginu Copilot.
 
 ## Conventional Commits
 
-Format: `type(scope): subject` — wymuszany przez husky `commit-msg` hook + commitlint.
-Hook `pre-commit` uruchamia `lint-staged` (ESLint + Prettier na touched files).
+`type(scope): subject` — wymuszane przez `husky commit-msg` + commitlint. Hook `pre-commit` uruchamia `lint-staged`.
 
-**Types:** `feat` `fix` `docs` `style` `refactor` `perf` `test` `build` `ci` `chore` `revert`
+- **Types:** `feat` `fix` `docs` `style` `refactor` `perf` `test` `build` `ci` `chore` `revert`
+- **Scopes:** `analyze-code` `propose-fix` `run-playwright` `compliance` `usage-history` `shared` `sandbox` `log` `session` `server` `cdk` `workflows` `ci` `deps` `docs` `release` `security` `tooling`
 
-**Scopes:** `analyze-code` `propose-fix` `run-playwright` `compliance` `usage-history` `shared` `sandbox` `log` `session` `server` `workflows` `ci` `deps` `docs` `release` `security` `tooling`
-
-Użyj `npm run commit` (commitizen) lub pisz ręcznie.
-
-## Dodawanie nowego narzędzia
-
-1. `src/tools/<tool>.ts` z `Input` (Zod), `Output` (Zod), `definition`.
-2. `src/tools/<tool>.spec.ts` — min. 3 testy (happy path, sandbox escape, edge case).
-3. Rejestracja w `src/server.ts`.
-4. Wpis w `README.md` (sekcja Narzędzia).
-5. Nowy scope w `commitlint.config.mjs`.
-6. `npm run verify`.
-
-## Dodawanie nowego resource (read-only doc)
-
-Resources to obok tools i prompts trzecia MCP capability — Copilot ładuje markdown raz, cache'uje na sesję, używa wielokrotnie bez halucynacji shape'u.
-
-1. Markdown w `templates/resources/<slug>.md` — dowolna treść (cheatsheet, spec, guide), bez frontmatter.
-2. Rejestracja w `src/server.ts` przez `defineMarkdownResource({ uri, name, description, file })` z `src/shared/resource.ts`. Konwencja URI: `mcp-devtools://docs/<slug-kebab>`.
-3. Dopisz do tabeli "MCP Resources" w `README.md` (sekcja "MCP Resources — preconfigured docs context").
-4. `npm run verify`.
-
-Resources nie wymagają testów spec (są deklaratywne — typecheck wystarcza). Edytowalne live bez restartu Copilota.
-
-## Dodawanie nowego prompt (slash-command)
-
-1. `definePrompt({ name, description, arguments?, buildMessages })` z `src/shared/prompt.ts`, dorzucone do array `prompts` w `src/server.ts`.
-2. Wpis w tabeli "MCP Prompts" w `README.md`.
-3. `npm run verify`.
-
-## Custom agents (VS Code Copilot)
-
-Każdy specjalista ma dedykowany **custom agent** w [`.github/agents/`](agents/) — wybierasz go z dropdownu chatu:
-
-| Mode                                                   | Kiedy używać                                                   |
-| ------------------------------------------------------ | -------------------------------------------------------------- |
-| [`orchestrator`](agents/orchestrator.agent.md)         | multi-step zadania, plan-first, **routing dla create-new-app** |
-| [`architect`](agents/architect.agent.md)               | shape rozwiązania, ADR, performance budgets                    |
-| [`app-scaffolder`](agents/app-scaffolder.agent.md)     | **nowa aplikacja / lib / serwer / CDK stack** od zera          |
-| [`integrator`](agents/integrator.agent.md)             | wiring scaffold w prod dev loop (Copilot, MCP, CI)             |
-| [`tool-author`](agents/tool-author.agent.md)           | implementacja narzędzia MCP w istniejącym serwerze             |
-| [`security-auditor`](agents/security-auditor.agent.md) | sandbox / SSRF / write-guard / STRIDE per asset                |
-
-Włączane przez `chat.modeFilesLocations` w [`.vscode/settings.json`](../.vscode/settings.json).
-
-## Czytaj na początku sesji
-
-1. [`.github/instructions/core.instructions.md`](instructions/core.instructions.md) — cross-cutting reguły.
-2. [`.github/instructions/security.instructions.md`](instructions/security.instructions.md) — sandbox, secrets policy.
-3. [`.github/instructions/tool-contract.instructions.md`](instructions/tool-contract.instructions.md) — kontrakt każdego toola.
-4. [`.github/instructions/mcp-server.instructions.md`](instructions/mcp-server.instructions.md) — konwencje serwera.
-5. [`.github/instructions/principles.instructions.md`](instructions/principles.instructions.md) — DRY/SOLID/KISS/YAGNI.
-6. [`.github/instructions/production-readiness.instructions.md`](instructions/production-readiness.instructions.md) — checklist przed shipnięciem.
+`npm run commit` (commitizen) lub ręcznie.
 
 ## Intranet posture
 
-- Serwer **nie** wykonuje outbound HTTP.
-- Jeśli dodajesz tool z siecią → skopiuj wzorzec z `mcp-alm/src/shared/http-client.ts` (sibling repo).
-  Obsługuje SSRF guard, `HTTPS_PROXY`, `NO_PROXY`, `NODE_EXTRA_CA_CERTS`.
-- Patrz [`docs/reference/configuration.md`](../docs/reference/configuration.md).
+Serwer **nie wykonuje outbound HTTP**. Jeśli dodajesz tool z siecią — skopiuj wzorzec z `mcp-alm/src/shared/http-client.ts` (SSRF guard + `HTTPS_PROXY` + `NO_PROXY` + `NODE_EXTRA_CA_CERTS`). Patrz [`docs/reference/configuration.md`](../docs/reference/configuration.md).
