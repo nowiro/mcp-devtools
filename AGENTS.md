@@ -42,11 +42,20 @@ Pełen rulebook → [`.github/copilot-instructions.md`](.github/copilot-instruct
 8. **DoD = `npm run verify`** (format + lint + typecheck + test + build + ai:validate).
 9. **Conventional Commits** — husky commit-msg + commitlint enforce.
 
-## Custom agents (VS Code Copilot)
+## Custom chat modes (VS Code Copilot)
 
-| Mode                                                               | Kiedy używać                                                               |
+**Jeden widoczny tryb.** Repo wystawia tylko jeden custom chat mode w mode picker Copilota — `orchestrator`. Routuje on do wewnętrznych personas które nie pojawiają się w pickerze (świadoma decyzja: prostsze UX dla użytkownika końcowego).
+
+### Widoczne w mode picker
+
+| Mode                                                         | Kiedy używać                                                               |
+| ------------------------------------------------------------ | -------------------------------------------------------------------------- |
+| [`orchestrator`](.github/chatmodes/orchestrator.chatmode.md) | każde high-level zadanie — multi-step, plan-first, routing do specjalistów |
+
+### Wewnętrzne persony (ładowane przez orchestrator, nie pojawiają się w pickerze)
+
+| Persona                                                            | Kiedy orchestrator je ładuje                                               |
 | ------------------------------------------------------------------ | -------------------------------------------------------------------------- |
-| [`orchestrator`](.github/agents/orchestrator.agent.md)             | multi-step, plan-first, **routing dla create-new-app**                     |
 | [`architect`](.github/agents/architect.agent.md)                   | shape rozwiązania, plan, performance budgets, trust boundaries             |
 | [`app-scaffolder`](.github/agents/app-scaffolder.agent.md)         | **nowa app / lib / serwer / CDK stack** od zera w house-style              |
 | [`integrator`](.github/agents/integrator.agent.md)                 | wiring scaffold w prod dev loop (Copilot, MCP, CI, deployment)             |
@@ -55,7 +64,11 @@ Pełen rulebook → [`.github/copilot-instructions.md`](.github/copilot-instruct
 | [`dependency-curator`](.github/agents/dependency-curator.agent.md) | audit prod-deps, lockfile hygiene, supply-chain guard                      |
 | [`test-engineer`](.github/agents/test-engineer.agent.md)           | coverage ≥ 80% per tool, sandbox path traversal tests, deterministic specs |
 
-VS Code wymaga `chat.modeFilesLocations` w [`.vscode/settings.json`](.vscode/settings.json). Inne hosty MCP czytają `AGENTS.md` + `.github/copilot-instructions.md` jako fallback.
+### Power-user shortcuts
+
+Slash-commands w [`.github/prompts/`](.github/prompts/) (`/new-tool`, `/audit-sandbox`, `/diagnose`, `/release`, `/security-review`, `/sdd-demo`) uruchamiają konkretną ścieżkę bez przechodzenia przez orchestratora — dla power userów którzy wiedzą co chcą.
+
+VS Code wymaga `chat.modeFilesLocations` w [`.vscode/settings.json`](.vscode/settings.json) (chatmodes są discoverable automatycznie z `.github/chatmodes/`). Inne hosty MCP czytają `AGENTS.md` + `.github/copilot-instructions.md` jako fallback.
 
 ## Gdzie idzie nowa praca
 

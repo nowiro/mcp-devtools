@@ -195,27 +195,18 @@ npm run verify   # format:check + lint + typecheck + test + build
 
 ## Agenci Copilot — kiedy i jak używać
 
-Repo wprowadza **sześć custom agents** w [`.github/agents/`](.github/agents/), które Copilot wykrywa automatycznie w VS Code (≥ 1.121) jako custom chat modes do wyboru z dropdownu nad polem czatu. Każdy agent ma wąską specjalizację — wybierz pasującego do typu zadania. Plus orchestrator umie routować zadanie do właściwego specjalisty gdy nie wiesz którego wybrać.
-
-| Agent                                                              | Kiedy używać                                                                                   | Przykładowy prompt                                                                                                       |
-| ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| [`orchestrator`](.github/agents/orchestrator.agent.md)             | Wieloetapowe zadania, plan-first, **routing dla create-new-app** (8-step flow)                 | "Stwórz nowy mcp server dla SonarCloud Cloud" lub "Plan na refactor analyze_code do osobnych analyzerów per framework"   |
-| [`architect`](.github/agents/architect.agent.md)                   | Shape rozwiązania zanim ktokolwiek pisze kod: ADR, performance budgets, trust boundaries       | "Zaproponuj layout dla nowego toola który scanuje docker-compose.yml, z ADR dla decyzji parser vs ad-hoc"                |
-| [`app-scaffolder`](.github/agents/app-scaffolder.agent.md)         | **Nowa aplikacja / biblioteka / serwer / CDK stack** od zera w house-style                     | "Wygeneruj nowy mcp-server template dla integracji ze ServiceNow, z baseline tools i sample test"                        |
-| [`integrator`](.github/agents/integrator.agent.md)                 | Wiring scaffold w prod dev loop: Copilot settings, MCP, CI/CD, CODEOWNERS, deployment          | "Po scaffoldzie nowego serwera mcp-servicenow zwireuj Copilot + ci.yml + gitleaks + dependabot"                          |
-| [`tool-author`](.github/agents/tool-author.agent.md)               | Implementacja narzędzia MCP w istniejącym serwerze (Zod Input/Output + ToolDefinition)         | "Dodaj tool `detect_flaky_tests` który skanuje test logs i wykrywa run-to-run variance, deterministic"                   |
-| [`security-auditor`](.github/agents/security-auditor.agent.md)     | Sandbox / SSRF / write-guard / STRIDE per asset — przed mergem mutating tools lub external API | "Audyt sandbox dla wszystkich tools przed v0.4.0 release, STRIDE dla compliance_report mutating mode"                    |
-| [`test-engineer`](.github/agents/test-engineer.agent.md)           | Coverage ≥ 80%, path traversal tests (POSIX + Windows), deterministic specs (no flaky)         | "Dodaj testy dla `analyze_code` z fixturem Angular 21 app — happy path, cache hit, deep nesting, dangerous-html finding" |
-| [`dependency-curator`](.github/agents/dependency-curator.agent.md) | Każda nowa npm dep wymaga ADR, cross-platform test, audit prod-deps, lockfile hygiene          | "Czy `fast-xml-parser` ma sensowny tradeoff vs własny parser dla junit_xml output `run_playwright`? ADR proszę"          |
+Repo wystawia **jeden widoczny custom chat mode** w VS Code Copilot — `orchestrator`. Routuje on do siedmiu wewnętrznych personas (architect, app-scaffolder, integrator, tool-author, security-auditor, test-engineer, dependency-curator) które nie pojawiają się w mode pickerze. **Świadoma decyzja: prostsze UX** — nie musisz wybierać agenta, tylko opisać zadanie. Orchestrator wybiera eksperta, ładuje jego personę z [`.github/agents/<role>.agent.md`](.github/agents/) jako system prompt, planuje, deleguje, bramkuje DoD.
 
 **Workflow w VS Code:**
 
 1. Otwórz Copilot Chat (`Ctrl+Alt+I` lub `Cmd+Ctrl+I`).
-2. Z dropdownu trybu chatu (góra okna) wybierz np. `app-scaffolder`.
-3. Wpisz zadanie — Copilot załaduje plik `.github/agents/<name>.agent.md` jako system prompt i odpowie zgodnie z workflow specjalisty.
-4. Pozostałe hosty MCP (Claude Desktop, Cursor, własny SDK) czytają agents jako fallback w `AGENTS.md` + `.github/copilot-instructions.md`.
+2. Z dropdownu trybu wybierz `orchestrator`.
+3. Opisz zadanie — np. _"Stwórz nowy mcp server dla SonarCloud Cloud"_ albo _"Dodaj tool `detect_flaky_tests` który skanuje test logs i wykrywa run-to-run variance"_.
+4. Orchestrator dobiera personę (`app-scaffolder + integrator + tool-author` lub `tool-author` w przykładach powyżej), pisze plan, deleguje, walidacja przez DoD gate.
 
-**Sample flow dla "stwórz nowy CDK stack":**
+Pełna mapa personas + decision tree: [`AGENTS.md`](AGENTS.md) i [`.github/chatmodes/orchestrator.chatmode.md`](.github/chatmodes/orchestrator.chatmode.md).
+
+**Przykładowy flow dla "stwórz nowy CDK stack":**
 
 ```
 orchestrator → architect (ADR + plan)
@@ -224,6 +215,21 @@ orchestrator → architect (ADR + plan)
             → tool-author (pierwszy tool)
             → security-auditor (sandbox + STRIDE per asset)
 ```
+
+### Power-user shortcuts (direct paths, omijają orchestratora)
+
+Slash-commands z [`.github/prompts/`](.github/prompts/) uruchamiają konkretną ścieżkę bez routingu przez orchestrator:
+
+| Slash command      | Co robi                                              |
+| ------------------ | ---------------------------------------------------- |
+| `/new-tool`        | tool-author tworzy nowe narzędzie MCP w `src/tools/` |
+| `/audit-sandbox`   | security-auditor (sandbox + path traversal review)   |
+| `/diagnose`        | propose-fix workflow dla failing testu               |
+| `/release`         | release flow (bump wersji + CHANGELOG + tag)         |
+| `/security-review` | security audit bieżącego diffu                       |
+| `/sdd-demo`        | spec-driven development showcase                     |
+
+Inne hosty MCP (Claude Desktop, Cursor, custom Agent SDK) czytają `AGENTS.md` + `.github/copilot-instructions.md` jako fallback gdy nie wspierają custom chat modes.
 
 ## MCP Prompts — preconfigured slash-commands
 

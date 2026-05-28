@@ -6,6 +6,7 @@ All notable changes are documented here. Format: [Keep a Changelog](https://keep
 
 ### Added
 
+- **`.github/chatmodes/orchestrator.chatmode.md`** — jedyny widoczny custom chat mode w VS Code Copilot picker. Routuje high-level zadania do siedmiu wewnętrznych personas (architect, app-scaffolder, integrator, tool-author, security-auditor, test-engineer, dependency-curator) które są teraz ładowane z `.github/agents/` jako system-prompt-w-locie, bez eksponowania w UI pickerze. Świadoma decyzja: prostsze UX dla użytkownika końcowego.
 - **`.github/workflows/release.yml`** — workflow publikujący `@nowiro/mcp-devtools` na npm registry przy push tagów `v*`. Uses `npm publish --provenance --access public` (SLSA-3-grade attestation). Pre-flight: repo owner ustawia secret `NPM_TOKEN` (Automation token scoped do `@nowiro` org).
 - **`README.md`** — sekcja "Uruchomienie bez klonowania (npx)" pokazująca `mcp.json` snippet z `npx -y -p @nowiro/mcp-devtools mcp-devtools` dla VS Code Copilot Chat oraz Claude Desktop / Cursor. Bez `git clone`, bez `npm install`, bez `npm run build` po stronie usera.
 - **MCP Resources** (`resources/list` + `resources/read`) — serwer eksponuje read-only docs ładowane przez Copilot jako deterministyczny kontekst. URIs: `mcp-devtools://docs/{analyze-findings-catalog,compliance-rules-spec,propose-fix-context-guide}`. Parity z `mcp-alm` — ta sama shape definicji, mirror użycia w Copilot Chat (`#mcp.resource`).
@@ -22,8 +23,14 @@ All notable changes are documented here. Format: [Keep a Changelog](https://keep
 - **`.github/instructions/principles.instructions.md`** — złote reguły: DRY/SOLID/KISS/YAGNI/composition.
 - **`.github/instructions/production-readiness.instructions.md`** — 4 must-haves przed shipnięciem: sandbox, Zod, testy, verify gate.
 
+### Removed
+
+- **`.github/agents/orchestrator.agent.md`** — treść przeniesiona do `.github/chatmodes/orchestrator.chatmode.md` (jedyne źródło prawdy dla orchestrator persona). Pozostałe pliki `.github/agents/*.agent.md` żyją dalej jako wewnętrzne persony ładowane przez orchestrator.
+
 ### Changed
 
+- **`AGENTS.md`** — sekcja "Custom agents (VS Code Copilot)" → "Custom chat modes (VS Code Copilot)" z tabelą rozdzieloną na **Widoczne w mode picker** (1 wiersz: orchestrator) i **Wewnętrzne persony** (7 wierszy: specjaliści ładowani przez orchestrator). Dodana sekcja "Power-user shortcuts" linkująca do `.github/prompts/`.
+- **`README.md`** — sekcja "Agenci Copilot — kiedy i jak używać" przerobiona pod single-orchestrator pattern: jeden tryb w pickerze + decision tree + przykładowy flow + tabela slash-commands jako direct paths dla power userów.
 - **`package.json`** — pakiet przygotowany do publikacji na npm:
   - `name` → `@nowiro/mcp-devtools` (scoped),
   - usunięte `"private": true`,
