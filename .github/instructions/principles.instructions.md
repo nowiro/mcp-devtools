@@ -5,109 +5,65 @@ description: Zasady inżynierskie — DRY, SOLID, KISS, YAGNI, kompozycja nad dz
 
 # Zasady inżynierskie
 
-To **złote reguły**, na których opiera się każdy agent i kontrybutor gdy
-nie ma pewności. Siedzą obok [`core.instructions.md`](core.instructions.md)
-na szczycie łańcucha priorytetu. Nie zastępują reguł zakresowych
-(security, tool-contract) — są meta-regułami, które te reguły wcielają.
+**Złote reguły** — meta-reguły, gdy agent nie ma pewności. Nie zastępują reguł zakresowych (security, tool-contract).
 
-## 1. DRY — Don't Repeat Yourself
+## 1. DRY
 
-Każda istotna wiedza ma żyć w jednym miejscu w systemie. Duplikacja
-wymusza, że każda zmiana musi być zsynchronizowana ręcznie — pierwszy
-zapomniany sync to bug.
+Każda istotna wiedza w jednym miejscu. Duplikacja = manual sync; pierwszy zapomniany sync = bug.
 
-- Reguły walidacji (Zod schemas) deklarowane raz, importowane.
-- Stałe (timeouty, budżety, limity) w `src/shared/` jako exportowane
-  named constants, nie inline.
-- Treści `description` narzędzi MCP: jedna canonical fraza per narzędzie,
-  nie powielana w docs.
+- Zod schemas deklarowane raz, importowane.
+- Stałe (timeouty, budżety, limity) w `src/shared/` jako exported named constants.
+- `description` MCP tooli: jedna canonical fraza, nie powielana w docs.
 
-**Wyjątek:** _Rule of three_. Pierwsza duplikacja jest OK. Druga jest
-podejrzana. Trzecia ekstrahuje wspólny helper.
+**Rule of three:** pierwsza duplikacja OK, druga podejrzana, trzecia ekstrahuje helper.
 
 ## 2. SOLID
 
-### SRP — Single Responsibility
+- **SRP** — jedna funkcja / moduł, jeden powód do zmiany. `sandbox.ts` = walidacja ścieżek (nie analizuje kodu). `analyze-code.ts` = static analysis (nie spawn). `run-playwright.ts` = spawn (nie parsuje TS).
+- **OCP** — nowy tool = nowy plik w `src/tools/` + rejestracja w `server.ts`, nie edycja istniejących.
+- **DIP** — handler nie wie o transporcie MCP. `defineTool({ handle(input) })`, kompozycja w `server.ts`.
 
-Jedna funkcja / klasa / moduł ma jeden powód do zmiany.
+## 3. KISS
 
-- `src/shared/sandbox.ts` — walidacja ścieżek (sandbox enforcement). Nie analizuje kodu.
-- `src/tools/analyze-code.ts` — statyczna analiza. Nie uruchamia procesów.
-- `src/tools/run-playwright.ts` — spawn procesu. Nie parsuje TS.
+Jeśli wymaga wyjaśnienia, za skomplikowane. Brak Builder gdy obiekt literałowy. Brak Factory gdy `new Cls(...)`. Sandbox = jeden `resolve()` + prefix compare, nie biblioteka.
 
-### OCP — Open / Closed
+## 4. YAGNI
 
-Moduły otwarte na rozszerzenia, zamknięte na modyfikacje. Dodanie nowego
-narzędzia to dodanie pliku w `src/tools/` + rejestracja w `src/server.ts`,
-nie edycja istniejących handlerów.
-
-### DIP — Dependency Inversion
-
-Handler narzędzia nie wie o transporcie MCP. `defineTool` przyjmuje
-`handle(input)` — kompozycja w `server.ts`.
-
-## 3. KISS — Keep It Simple, Stupid
-
-Jeśli rozwiązanie potrzebuje wyjaśnienia, jest za skomplikowane.
-
-- Brak wzorca _Builder_ tam, gdzie wystarczy obiekt literałowy.
-- Brak _Factory_ tam, gdzie wystarczy `new Cls(...)`.
-- Sandbox to jeden `resolve()` + porównanie prefix — nie biblioteka.
-
-## 4. YAGNI — You Aren't Gonna Need It
-
-Nie buduj abstrakcji "na zapas". Pierwsza implementacja jest najprostsza.
-Druga wymusi refactor — i właśnie wtedy abstrakcja powstaje z prawdziwym
-kontekstem.
+Pierwsza implementacja najprostsza. Druga wymusi refactor — wtedy abstrakcja powstaje z prawdziwym kontekstem.
 
 ## 5. Composition over inheritance
 
-Większość problemów daje się rozwiązać kompozycją funkcji.
-
-- Narzędzia to funkcje, nie subklasy abstrakcyjnego `BaseTool`.
-- `analyze-code.ts` komponuje `walkFiles → countLines → findPatterns` —
-  każdy kawałek testowalny niezależnie.
+Narzędzia to funkcje, nie subklasy `BaseTool`. `analyze-code.ts` komponuje `walkFiles → countLines → findPatterns` (każdy kawałek osobno testable).
 
 ## 6. Fail fast, fail loud
 
-Błędy na granicy, nie głęboko w kodzie.
-
-- Każdy input jest walidowany przez Zod na granicy toola.
+- Zod walidacja na granicy każdego toola.
 - Sandbox odrzuca path traversal w pierwszej linii handlera.
-- Nie coerce po cichu `null` na defaulty — ujaw brakujący input.
+- Brak silent `null` coerce na defaulty — ujawnij brakujący input.
 
 ## 7. Convention over configuration
 
-- Nazwy plików: `kebab-case`.
-- Nazwy narzędzi MCP: `verb_noun` (np. `analyze_code`, `run_playwright`).
-- Jeden plik = jedno narzędzie: `src/tools/<tool>.ts` + `src/tools/<tool>.spec.ts`.
+- Pliki: `kebab-case`.
+- Tool naming: `verb_noun` (`analyze_code`, `run_playwright`).
+- Jeden plik = jedno narzędzie: `src/tools/<tool>.ts` + `<tool>.spec.ts`.
 - Commits: Conventional Commits.
 
-## 8. Reversibility — małe, bezpieczne kroki
+## 8. Reversibility
 
-Duże zmiany są straszne. Wiele małych zmian to rutyna.
+Jeden concern per PR. ADR dla decyzji trudnych do odwrócenia.
 
-- Jeden concern na PR. Reviewable w jednym posiedzeniu.
-- ADR dla decyzji trudnych do odwrócenia.
+## 9. Kod czytany więcej niż pisany
 
-## 9. Kod jest czytany więcej niż pisany
-
-- Nazwy zamiast komentarzy.
-- Explicit types zamiast inferred na granicach API.
+Nazwy zamiast komentarzy. Explicit types na granicach API.
 
 ## 10. Wrap external dependencies
 
-Każde `spawnSync` / `execFile` / system call żyje za wrapperem
-w `src/shared/`, nie bezpośrednio w handlerze narzędzia.
+Każde `spawnSync` / `execFile` / system call żyje za wrapperem w `src/shared/`, nigdy bezpośrednio w handlerze.
 
 ## Jak agenci to stosują
 
-Gdy dwa konkurujące podejścia spełniają immediate spec, agent wybiera
-to bliższe tym zasadom i notuje trade-off w swoim hand-off bloku.
-Code reviewer cytuje **id zasady** (np. _SRP_, _KISS_) przy odrzucaniu.
+Dwa podejścia spełniają spec → wybór bliższy zasadom, notuj trade-off w hand-off. Code reviewer cytuje **id zasady** (`SRP`, `KISS`) przy odrzucaniu.
 
 ## Zobacz też
 
-- [`core.instructions.md`](core.instructions.md) — nienegocjowalne cross-cutting reguły.
-- [`security.instructions.md`](security.instructions.md) — reguły bezpieczeństwa.
-- [`tool-contract.instructions.md`](tool-contract.instructions.md) — kontrakt każdego toola.
+[`core.instructions.md`](core.instructions.md) · [`security.instructions.md`](security.instructions.md) · [`tool-contract.instructions.md`](tool-contract.instructions.md)

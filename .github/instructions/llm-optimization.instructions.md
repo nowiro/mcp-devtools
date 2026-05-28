@@ -5,85 +5,65 @@ description: Reguły budżetu tokenów i shaping odpowiedzi dla narzędzi MCP w 
 
 # Optymalizacja zapytań do LLM
 
-> Reguły zmniejszania zużycia tokenów na dwóch warstwach: response shaping i cache reuse. Dotyczy każdego narzędzia MCP oraz każdej odpowiedzi wracającej do agenta.
+Dwie warstwy: **response shaping** + **cache reuse**. Stosuje się do każdego narzędzia MCP i każdej odpowiedzi wracającej do agenta.
 
-## Dlaczego to ma znaczenie
-
-Tokeny kosztują pieniądze i kontekst. Zmarnowany token to:
-
-- **Wolniejsza odpowiedź** (więcej do wygenerowania).
-- **Wyższy rachunek** (per-token billing).
-- **Wcześniejszy overflow** kontekstu — agent traci pamięć rozmowy szybciej.
+Zmarnowany token = wolniejsza odpowiedź, wyższy rachunek, wcześniejszy overflow kontekstu.
 
 ## Reguły
 
 ### 1. Kompaktowy JSON
 
-Nie zwracaj `null`, `undefined`, pustych tablic/obiektów.
+Nie zwracaj `null`, `undefined`, pustych tablic/obiektów. `JSON.stringify(value)`, nigdy `JSON.stringify(value, null, 2)` (pretty-print = ~30% tokens waste).
 
-**Anti-pattern:** `JSON.stringify(value, null, 2)` — pretty-print marnuje 30%+ tokenów.
-**Pattern:** `JSON.stringify(value)`.
+### 2. Odpowiedź zawiera tylko to o co poproszono
 
-### 2. Odpowiedź zawiera tylko to, o co poproszono
-
-Gdy agent mówi "check file X" — zwróć tylko findings dla X.
-Nie dodawaj automatycznie całego drzewa katalogów, które nie było pytane.
+Agent mówi "check file X" → zwróć findings tylko dla X. Brak automatic całego drzewa katalogów.
 
 ### 3. Truncate, nie crashuj
 
-`propose_fix` jest ograniczone parametrem `window` (max 200 linii).
-`raw_stdout` w `run_playwright` jest capped do 8 KB.
-Nigdy nie odrzucaj odpowiedzi — degraduj z `[truncated]` markerem.
+`propose_fix` ma `window` cap (max 200 linii). `raw_stdout` w `run_playwright` capped do 8 KB. Degraduj z `[truncated]` markerem, nigdy nie odrzucaj.
 
 ### 4. Cache identycznych wywołań
 
-`analyze_code` używa mtime-based cache per `path+depth+metrics+framework`.
-Każde narzędzie, które skanuje filesystem wielokrotnie z tymi samymi parametrami, powinno mieć cache.
+`analyze_code` używa mtime-based cache per `path+depth+metrics+framework`. Każde narzędzie scanujące FS wielokrotnie z tymi samymi parametrami = cache.
 
 ### 5. English w `description` MCP toola
 
-Pole `description` jest wysyłane do LLM przy **każdym** `tools/list`.
-Polski tokenizuje się ~1.4× drożej niż angielski.
+`description` wysyłane przy **każdym** `tools/list`. Polski tokenizuje się ~1.4× drożej.
 
 ✅ `"Walk a TS/TSX/JS/JSX/HTML/Vue file tree. Return generic findings and per-framework metrics."`
 ❌ `"Przejdź po drzewie plików TS/TSX i wróć metryki frameworka."`
 
 ### 6. Deterministyczne skrypty dla powtarzalnych operacji
 
-**Zasada:** powtarzalne, dobrze zdefiniowane operacje (bootstrap, doctor, validate AI config, release) wykonuj **skryptem Node** o stałej kolejności kroków — nie ad-hoc promptem do LLM.
+Powtarzalne well-defined operacje (bootstrap, doctor, validate, release) wykonuj **skryptem Node** o stałej kolejności kroków — nie ad-hoc promptem.
 
-**Co MUSI być skryptem:**
+**MUSI być skryptem:**
 
-- Bootstrap repo → `npm run bootstrap` (`tools/scripts/bootstrap.mjs`)
-- Diagnostics → `npm run doctor` (`tools/scripts/doctor.mjs`)
-- AI config validation → `npm run ai:validate` (`tools/scripts/validate-ai-config.mjs`)
-- Pełny gate → `npm run verify`
+- Bootstrap → `npm run bootstrap`
+- Diagnostics → `npm run doctor`
+- AI config validation → `npm run ai:validate`
+- Full gate → `npm run verify`
 
-**Anti-pattern:** `copilot-instructions.md` ze 200-linijkową procedurą "jak zrobić release" —
-to skrypt, nie prompt. Każde uruchomienie marnuje tokeny na ponowne czytanie procedury.
+**Anti-pattern:** `copilot-instructions.md` ze 200-linijkową procedurą release — to skrypt, nie prompt. Każde uruchomienie marnuje tokeny.
 
 ### 7. `_meta` envelope
 
-Każda odpowiedź narzędzia jest wrapowana w:
+Każda odpowiedź wrapowana:
 
 ```json
 {
   "data": { ... },
-  "_meta": {
-    "tokensEstimate": 420,
-    "correlationId": "9e1c7c1f-...",
-    "durationMs": 42
-  }
+  "_meta": { "tokensEstimate": 420, "correlationId": "9e1c7c1f-...", "durationMs": 42 }
 }
 ```
 
-`tokensEstimate` jest szacunkowy (naiwne `ceil(chars/4)`), ale pozwala agentowi
-na świadome zarządzanie kontekstem bez zewnętrznego stacku observability.
+`tokensEstimate` szacunkowy (naiwne `ceil(chars/4)`) — pozwala agentowi na świadome zarządzanie kontekstem bez external observability stack.
 
 ## Anti-patterns
 
-- ❌ `JSON.stringify(value, null, 2)` przy zwracaniu do LLM
-- ❌ Zwracanie pełnych zawartości plików gdy wystarczy slice ±25 linii
+- ❌ `JSON.stringify(value, null, 2)` do LLM
+- ❌ Pełne pliki gdy wystarczy slice ±25 linii
 - ❌ Polski w MCP tool `description`
 - ❌ Hard-cap bez `truncated` flagi w odpowiedzi
-- ❌ `console.log(large_object)` w handlerze (stdout jest zarezerwowany dla transportu MCP)
+- ❌ `console.log(large_object)` w handlerze (stdout = transport MCP)
