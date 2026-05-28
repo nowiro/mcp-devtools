@@ -18,7 +18,7 @@ Każda odpowiedź jest wrapowana w `{ data, _meta: { tokensEstimate, correlation
 
 ## Klient
 
-- **GitHub Copilot Chat** w **VS Code ≥ 1.121** lub **IntelliJ IDEA ≥ 2026.1.2** (oba mają natywne MCP picker).
+- **GitHub Copilot Chat** w **VS Code ≥ 1.121**, **IntelliJ IDEA ≥ 2026.1.2** lub **Eclipse** (plugin Copilot for Eclipse open-sourced 2026-05-21). Wszystkie mają natywny MCP picker.
 - Cross-platform: Windows (PowerShell / Git Bash), macOS (zsh / bash), Linux (bash).
 - Konfiguracja IDE: `.vscode/mcp.json` (VS Code) i `.idea/mcp-servers.example.xml` (IntelliJ).
 

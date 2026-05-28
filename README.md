@@ -5,7 +5,7 @@
 [![gitleaks](https://github.com/nowiro/mcp-devtools/actions/workflows/gitleaks.yml/badge.svg)](https://github.com/nowiro/mcp-devtools/actions/workflows/gitleaks.yml)
 [![compliance](https://github.com/nowiro/mcp-devtools/actions/workflows/compliance-sarif.yml/badge.svg)](https://github.com/nowiro/mcp-devtools/actions/workflows/compliance-sarif.yml)
 [![role](https://img.shields.io/badge/role-MCP%20server-blue)](#)
-[![ide](https://img.shields.io/badge/IDE-VS%20Code%201.121%2B%20%C2%B7%20IntelliJ%202026.1.2%2B-2da44e)](#ide-setup)
+[![ide](https://img.shields.io/badge/IDE-VS%20Code%201.121%2B%20%C2%B7%20IntelliJ%202026.1.2%2B%20%C2%B7%20Eclipse-2da44e)](#ide-setup)
 [![ai](https://img.shields.io/badge/AI-GitHub%20Copilot-2da44e)](#)
 [![os](https://img.shields.io/badge/OS-Windows%20%C2%B7%20macOS%20%C2%B7%20Linux-blue)](#)
 [![license](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)

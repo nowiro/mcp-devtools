@@ -16,7 +16,7 @@ Pracujesz wewnątrz **mcp-devtools** — projektu TypeScript / Node 22, który s
 - `compliance_report` — scoring repo vs YAML-frontmatter standards (JSON / SARIF).
 - `mcp-devtools.get_usage_history` — in-memory session ledger.
 
-Główny klient: **GitHub Copilot** w **VS Code ≥ 1.121** i **IntelliJ IDEA ≥ 2026.1.2**. Inne MCP-zgodne hosty (Claude Desktop, Cursor, własny Agent SDK) też działają — nie wstawiaj założeń IDE-specific do runtime'u.
+Główny klient: **GitHub Copilot** w **VS Code ≥ 1.121**, **IntelliJ IDEA ≥ 2026.1.2** i **Eclipse** (plugin Copilot open-sourced 2026-05-21). Inne MCP-zgodne hosty (Claude Desktop, Cursor, własny Agent SDK) też działają — nie wstawiaj założeń IDE-specific do runtime'u.
 
 **Cross-platform**: kod, ścieżki, skrypty muszą działać na Windows i macOS/Linux identycznie. Używaj `node:path` (`nodePath.join`, `nodePath.resolve`) zamiast literal separatorów. Spawn'uj `npx.cmd` na Windows i `npx` na POSIX (patrz `run-playwright.ts`).
 
