@@ -32,14 +32,16 @@ Pełen rulebook → [`.github/copilot-instructions.md`](.github/copilot-instruct
 
 ## Custom agents (VS Code Copilot)
 
-| Mode                                                           | Kiedy używać                                                   |
-| -------------------------------------------------------------- | -------------------------------------------------------------- |
-| [`orchestrator`](.github/agents/orchestrator.agent.md)         | multi-step, plan-first, **routing dla create-new-app**         |
-| [`architect`](.github/agents/architect.agent.md)               | shape rozwiązania, plan, performance budgets, trust boundaries |
-| [`app-scaffolder`](.github/agents/app-scaffolder.agent.md)     | **nowa app / lib / serwer / CDK stack** od zera w house-style  |
-| [`integrator`](.github/agents/integrator.agent.md)             | wiring scaffold w prod dev loop (Copilot, MCP, CI, deployment) |
-| [`tool-author`](.github/agents/tool-author.agent.md)           | implementacja narzędzia MCP w istniejącym serwerze             |
-| [`security-auditor`](.github/agents/security-auditor.agent.md) | sandbox / SSRF / write-guard / STRIDE per asset                |
+| Mode                                                               | Kiedy używać                                                               |
+| ------------------------------------------------------------------ | -------------------------------------------------------------------------- |
+| [`orchestrator`](.github/agents/orchestrator.agent.md)             | multi-step, plan-first, **routing dla create-new-app**                     |
+| [`architect`](.github/agents/architect.agent.md)                   | shape rozwiązania, plan, performance budgets, trust boundaries             |
+| [`app-scaffolder`](.github/agents/app-scaffolder.agent.md)         | **nowa app / lib / serwer / CDK stack** od zera w house-style              |
+| [`integrator`](.github/agents/integrator.agent.md)                 | wiring scaffold w prod dev loop (Copilot, MCP, CI, deployment)             |
+| [`tool-author`](.github/agents/tool-author.agent.md)               | implementacja narzędzia MCP w istniejącym serwerze                         |
+| [`security-auditor`](.github/agents/security-auditor.agent.md)     | sandbox / SSRF / write-guard / STRIDE per asset                            |
+| [`dependency-curator`](.github/agents/dependency-curator.agent.md) | audit prod-deps, lockfile hygiene, supply-chain guard                      |
+| [`test-engineer`](.github/agents/test-engineer.agent.md)           | coverage ≥ 80% per tool, sandbox path traversal tests, deterministic specs |
 
 VS Code wymaga `chat.modeFilesLocations` w [`.vscode/settings.json`](.vscode/settings.json). Inne hosty MCP czytają `AGENTS.md` + `.github/copilot-instructions.md` jako fallback.
 
