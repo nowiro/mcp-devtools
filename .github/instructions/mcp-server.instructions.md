@@ -79,6 +79,14 @@ dla transportu MCP):
 
 Bez PII, bez ścieżek absolutnych użytkownika w logu, bez pełnych payloadów.
 
+`correlationId` przychodzi z inbound `req.params._meta?.correlationId` przez
+`correlationIdFromMeta` w `src/shared/correlation.ts`. Copilot CLI
+`preMcpToolCall` hook (maj 2026) może wstrzyknąć trace ID z external
+observability (OpenTelemetry / Datadog / Sentry) przed wysłaniem
+`tools/call`. Server propaguje to ID end-to-end: log → ledger →
+outbound `_meta` w response envelope. Fallback gdy `_meta` brak: ULID
+generated server-side.
+
 ## 7. Response envelope
 
 Każda odpowiedź jest wrapowana w:

@@ -53,3 +53,32 @@ done:
   task_id: T00X
   next: ['app-scaffolder', 'tool-author', 'security-auditor']
 ```
+
+## See also — spec-kit Architecture Guard
+
+Spec-kit community catalog ma extension [Architecture
+Guard](https://speckit-community.github.io/extensions/) (v1.8.x, maj 2026)
+implementujący pokrewną filozofię: spec-driven development z **gates
+pomiędzy fazami** (`governed-plan` → `governed-tasks` → `governed-implement`).
+Cross-checked vs nasz workflow:
+
+| Architecture Guard                                                                  | Nasz architect.agent.md                                                           |
+| ----------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `governed-plan` orchestruje memory synthesis + technical planning + validation      | `default loop` step 3 — plan + decisions sections                                 |
+| `governed-tasks` generuje tasks z memory + security/architecture refactor awareness | Hand-off do `app-scaffolder` / `tool-author` po accepted plan                     |
+| `governed-implement` z post-implementation governance review                        | Hand-off do `security-auditor` po implementacji                                   |
+| Routing: architecture findings → Architecture Guard, security → Security Review     | Routing: `architect` produkuje plan, `security-auditor` audytuje STRIDE per asset |
+
+**Nasze różnice (świadome):**
+
+- Brak osobnego `governed-*` wrappera — robimy gating przez `Plan-or-refuse`
+  (orchestrator nie deleguje bez `plan:` + `task_id:`).
+- Brak osobnego katalogu ADR — decisions żyją w sekcji "Decisions" planu.
+- Architecture validation jest częścią `architect` agent loop, nie osobnym
+  extension.
+
+**Co warto rozważyć w przyszłości:** spec-kit's `memory synthesis` step
+(load previous plans + decisions przed nowym planem) — u nas robi to user
+manualnie w kroku 1 "Read user request + istniejące plany / ADR-y". Może
+warto zautomatyzować jako deterministyczny skrypt w `tools/scripts/` (np.
+`memory-load.mjs` agreguje `docs/specs/*/plan.md` decisions sections).
