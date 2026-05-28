@@ -63,6 +63,63 @@ In-memory session ledger. FIFO 1000 records.
 
 Pełna polityka → [SECURITY.md](SECURITY.md).
 
+## Uruchomienie bez klonowania (npx)
+
+Paczka [`@nowiro/mcp-devtools`](https://www.npmjs.com/package/@nowiro/mcp-devtools) jest publikowana na npm z prebuiltem `dist/`. Możesz skonfigurować dowolnego klienta MCP bezpośrednio przez `npx -y -p @nowiro/mcp-devtools <bin>` — **bez `git clone`, bez `npm install`, bez `npm run build`**.
+
+### VS Code ≥ 1.121 — Copilot Chat
+
+Edytuj user-level `mcp.json` (Command Palette → "MCP: Open user settings (JSON)") lub workspace `.vscode/mcp.json`:
+
+```json
+{
+  "$schema": "https://aka.ms/vscode-mcp.schema.json",
+  "servers": {
+    "devtools": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "-p", "@nowiro/mcp-devtools", "mcp-devtools"],
+      "env": {
+        "PROJECT_ROOT": "${workspaceFolder}",
+        "LOG_LEVEL": "info"
+      }
+    }
+  }
+}
+```
+
+`PROJECT_ROOT` to sandbox root dla wszystkich operacji FS — narzędzia odrzucają ścieżki poza tym katalogiem.
+
+**Windows + nvm-windows:** zamień `"command": "npx"` na `"command": "cmd"` i prependuj `"args": ["/c", "npx.cmd", "-y", "-p", "@nowiro/mcp-devtools", "mcp-devtools"]`.
+
+### Claude Desktop / Cursor / inny host MCP
+
+```json
+{
+  "mcpServers": {
+    "devtools": {
+      "command": "npx",
+      "args": ["-y", "-p", "@nowiro/mcp-devtools", "mcp-devtools"],
+      "env": { "PROJECT_ROOT": "/absolute/path/to/your/project" }
+    }
+  }
+}
+```
+
+### CDK CLI (opcjonalnie)
+
+Drugi bin `mcp-devtools-cdk` kompiluje workflow YAML → MCP prompts:
+
+```sh
+npx -y -p @nowiro/mcp-devtools mcp-devtools-cdk compile --src ./src/cdk/workflows --out ./.github/prompts
+```
+
+### Pin wersji vs. zawsze najnowsza
+
+`npx -y -p @nowiro/mcp-devtools mcp-devtools` (bez `@`) pobiera **najnowszą** opublikowaną wersję przy każdym starcie. Aby przypiąć do konkretnej: `npx -y -p @nowiro/mcp-devtools@1.0.0 mcp-devtools`.
+
+---
+
 ## Quickstart
 
 ```sh

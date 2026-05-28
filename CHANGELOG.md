@@ -6,6 +6,8 @@ All notable changes are documented here. Format: [Keep a Changelog](https://keep
 
 ### Added
 
+- **`.github/workflows/release.yml`** — workflow publikujący `@nowiro/mcp-devtools` na npm registry przy push tagów `v*`. Uses `npm publish --provenance --access public` (SLSA-3-grade attestation). Pre-flight: repo owner ustawia secret `NPM_TOKEN` (Automation token scoped do `@nowiro` org).
+- **`README.md`** — sekcja "Uruchomienie bez klonowania (npx)" pokazująca `mcp.json` snippet z `npx -y -p @nowiro/mcp-devtools mcp-devtools` dla VS Code Copilot Chat oraz Claude Desktop / Cursor. Bez `git clone`, bez `npm install`, bez `npm run build` po stronie usera.
 - **MCP Resources** (`resources/list` + `resources/read`) — serwer eksponuje read-only docs ładowane przez Copilot jako deterministyczny kontekst. URIs: `mcp-devtools://docs/{analyze-findings-catalog,compliance-rules-spec,propose-fix-context-guide}`. Parity z `mcp-alm` — ta sama shape definicji, mirror użycia w Copilot Chat (`#mcp.resource`).
 - **`src/shared/resource.ts`** — `ResourceDefinition` + `defineResource` + `defineMarkdownResource({ uri, name, description, file })` resolwujący path z `templates/resources/<file>.md` przez `import.meta.url` (cross-platform, niezależne od `cwd`).
 - **`templates/resources/`** — 3 markdown źródła: `analyze-findings-catalog.md` (finding kinds + framework detection + metrics), `compliance-rules-spec.md` (rule file format + SARIF), `propose-fix-context-guide.md` (input shape + sandbox + workflow). Edytowalne bez restartu Copilota.
@@ -22,6 +24,12 @@ All notable changes are documented here. Format: [Keep a Changelog](https://keep
 
 ### Changed
 
+- **`package.json`** — pakiet przygotowany do publikacji na npm:
+  - `name` → `@nowiro/mcp-devtools` (scoped),
+  - usunięte `"private": true`,
+  - `files: ["dist","README.md","LICENSE","CHANGELOG.md"]` ogranicza tarball do prebuiltu + metadanych,
+  - `publishConfig: { access: "public", provenance: true }`,
+  - `scripts.prepublishOnly: "npm run build"` gwarantuje świeży `dist/` w tarballu.
 - **`package.json#version`** — `0.3.0` → `1.0.0`. Projekt jest feature-complete; parity z `mcp-alm` 1.0.0.
 - **`package.json#scripts`** — dodano `ai:validate`; `verify` rozszerzony o `&& npm run ai:validate`.
 - **`package.json#{homepage,repository,bugs}`** — `<your-org>` → `nowiro`.

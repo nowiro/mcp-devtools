@@ -1,7 +1,6 @@
 {
-  "name": "mcp-devtools",
+  "name": "@nowiro/mcp-devtools",
   "version": "1.0.0",
-  "private": true,
   "type": "module",
   "description": "MCP server with developer-workflow tools (analyze_code, propose_fix, run_playwright, compliance_report). Multi-framework (Angular / React / Vue auto-detect). Cross-platform — Windows / macOS / Linux. Compatible with GitHub Copilot in VS Code >= 1.121 and IntelliJ IDEA >= 2026.1.2.",
   "license": "MIT",
@@ -36,12 +35,23 @@
     "linux",
     "win32"
   ],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "bin": {
     "mcp-devtools": "./dist/server.js",
     "mcp-devtools-cdk": "./dist/cli/mcp-devtools-cdk.js"
   },
   "scripts": {
     "prepare": "husky",
+    "prepublishOnly": "npm run build",
     "bootstrap": "node tools/scripts/bootstrap.mjs",
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
