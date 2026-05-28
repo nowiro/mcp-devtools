@@ -120,8 +120,13 @@ export function parseJunitReporter(stdout: string): { pass: number; fail: number
   const testsM = JUNIT_TESTS_RE.exec(stdout);
   const failM = JUNIT_FAILURES_RE.exec(stdout);
   if (!testsM || !failM) return { pass: 0, fail: 0, flaky: 0 };
-  const total = Number.parseInt(testsM[1], 10);
-  const fail = Number.parseInt(failM[1], 10);
+  const testsCaptured = testsM[1];
+  const failCaptured = failM[1];
+  if (testsCaptured === undefined || failCaptured === undefined) {
+    return { pass: 0, fail: 0, flaky: 0 };
+  }
+  const total = Number.parseInt(testsCaptured, 10);
+  const fail = Number.parseInt(failCaptured, 10);
   return { pass: Math.max(0, total - fail), fail, flaky: 0 };
 }
 
@@ -129,9 +134,9 @@ export function parseLineReporter(stdout: string, exit_code: number): { pass: nu
   const passM = PASS_RE.exec(stdout);
   const failM = FAIL_RE.exec(stdout);
   const flakyM = FLAKY_RE.exec(stdout);
-  const pass = passM ? Number.parseInt(passM[1], 10) : 0;
-  const failParsed = failM ? Number.parseInt(failM[1], 10) : 0;
-  const flaky = flakyM ? Number.parseInt(flakyM[1], 10) : 0;
+  const pass = passM?.[1] !== undefined ? Number.parseInt(passM[1], 10) : 0;
+  const failParsed = failM?.[1] !== undefined ? Number.parseInt(failM[1], 10) : 0;
+  const flaky = flakyM?.[1] !== undefined ? Number.parseInt(flakyM[1], 10) : 0;
   // If the regex finds nothing but the process failed, assume at least one fail
   const fail = failParsed === 0 && exit_code !== 0 ? 1 : failParsed;
   return { pass, fail, flaky };

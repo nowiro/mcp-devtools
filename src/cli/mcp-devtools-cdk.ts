@@ -67,7 +67,11 @@ async function loadWorkflowClass(file: string): Promise<new (scope: App, id: str
   if (candidates.length > 1) {
     throw new Error(`${file}: expected exactly one exported Workflow subclass per file`);
   }
-  return candidates[0];
+  const candidate = candidates[0];
+  if (!candidate) {
+    throw new Error(`${file}: no exported Workflow subclass found`);
+  }
+  return candidate;
 }
 
 async function compileCommand(args: CliArgs): Promise<number> {

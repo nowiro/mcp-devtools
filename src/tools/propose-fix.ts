@@ -52,7 +52,9 @@ export function extractFaultLines(failure_text: string, path: string): number[] 
   let m: RegExpExecArray | null;
   while ((m = re.exec(failure_text)) !== null) {
     // m[1] is guaranteed by the regex group (RegExpExecArray indexes as string).
-    const ln = Number.parseInt(m[1], 10);
+    const captured = m[1];
+    if (captured === undefined) continue;
+    const ln = Number.parseInt(captured, 10);
     if (ln > 0 && !seen.has(ln)) {
       seen.add(ln);
       out.push(ln);

@@ -45,6 +45,7 @@ describe('log', () => {
   it('emits JSON line with ts and provided fields', () => {
     log({ server: 'mcp-devtools', tool: 'read_docs', ok: true, durationMs: 12 });
     const line = capture.lines[0];
+    if (!line) throw new Error('expected log line 0');
     expect(line.server).toBe('mcp-devtools');
     expect(line.tool).toBe('read_docs');
     expect(line.ok).toBe(true);
@@ -69,6 +70,7 @@ describe('log', () => {
       },
     });
     const line = capture.lines[0];
+    if (!line) throw new Error('expected log line 0');
     const details = line['details'] as Record<string, unknown>;
     expect(details['token']).toBe('[Redacted]');
     expect(details['password']).toBe('[Redacted]');
