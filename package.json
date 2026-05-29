@@ -69,13 +69,14 @@
     "template:render": "node tools/scripts/render-template.mjs",
     "template:list": "node tools/scripts/render-template.mjs --list",
     "validate:inputs": "node tools/scripts/validate-inputs.mjs",
+    "sdd:check": "node tools/scripts/validate-sdd.mjs",
     "token:budget": "node tools/scripts/token-budget.mjs",
     "workflow:new-tool": "node tools/scripts/workflow-new-tool.mjs",
     "workflow:audit-sandbox": "node tools/scripts/workflow-audit-sandbox.mjs",
     "extract:analyze": "node dist/extract-analyze.js",
     "extract:compliance": "node dist/extract-compliance.js",
     "cdk:compile": "node dist/cli/mcp-devtools-cdk.js compile",
-    "verify": "npm run format:check && npm run lint && npm run typecheck && npm test && npm run build && npm run ai:validate && npm run validate:inputs"
+    "verify": "npm run format:check && npm run lint && npm run typecheck && npm test && npm run build && npm run ai:validate && npm run validate:inputs && npm run sdd:check"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.29.0",
