@@ -22,6 +22,9 @@ All notable changes are documented here. Format: [Keep a Changelog](https://keep
 - **`.github/instructions/mcp-server.instructions.md`** — konwencje serwera: naming narzędzi, sandbox, Zod, error contract, logowanie.
 - **`.github/instructions/principles.instructions.md`** — złote reguły: DRY/SOLID/KISS/YAGNI/composition.
 - **`.github/instructions/production-readiness.instructions.md`** — 4 must-haves przed shipnięciem: sandbox, Zod, testy, verify gate.
+- **`.github/skills/` — Agent Skills (agentskills.io) adopted.** README przepisany z placeholdera na active (stable spec: Copilot 2025-12, VS Code `SKILL.md` ~2026-04). Pierwszy realny skill `analyze-code-triage/SKILL.md` — triage findingów `analyze_code` po severity/kind + fix order (read-only).
+- **`tools/scripts/validate-ai-config.mjs`** — sekcja 6: walidacja `.github/skills/<name>/SKILL.md` (`name` + `description`, `name == folder`, charset/długość, reject flat `*.md`). `npm run ai:validate` raportuje licznik `N skills`.
+- **`.github/prompts/refine.prompt.md`** — slash-command `/refine` (`mode: ask`): bierze surowy zarys promptu i zwraca dopracowaną wersję do akceptacji; bez side-effectów (nie edytuje plików, nie woła toolów).
 
 ### Removed
 

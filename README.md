@@ -228,6 +228,7 @@ Slash-commands z [`.github/prompts/`](.github/prompts/) uruchamiają konkretną 
 | `/release`         | release flow (bump wersji + CHANGELOG + tag)         |
 | `/security-review` | security audit bieżącego diffu                       |
 | `/sdd-demo`        | spec-driven development showcase                     |
+| `/refine`          | dopracuj surowy prompt przed wysłaniem (read-only)   |
 
 Inne hosty MCP (Claude Desktop, Cursor, custom Agent SDK) czytają `AGENTS.md` + `.github/copilot-instructions.md` jako fallback gdy nie wspierają custom chat modes.
 
