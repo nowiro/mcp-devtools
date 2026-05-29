@@ -204,7 +204,7 @@ Repo wystawia **jeden widoczny custom chat mode** w VS Code Copilot — `orchest
 3. Opisz zadanie — np. _"Stwórz nowy mcp server dla SonarCloud Cloud"_ albo _"Dodaj tool `detect_flaky_tests` który skanuje test logs i wykrywa run-to-run variance"_.
 4. Orchestrator dobiera personę (`app-scaffolder + integrator + tool-author` lub `tool-author` w przykładach powyżej), pisze plan, deleguje, walidacja przez DoD gate.
 
-Pełna mapa personas + decision tree: [`AGENTS.md`](AGENTS.md) i [`.github/chatmodes/orchestrator.chatmode.md`](.github/chatmodes/orchestrator.chatmode.md).
+Pełna mapa personas + decision tree: [`AGENTS.md`](AGENTS.md) i [`.github/agents/orchestrator.agent.md`](.github/agents/orchestrator.agent.md).
 
 **Przykładowy flow dla "stwórz nowy CDK stack":**
 
@@ -230,7 +230,7 @@ Slash-commands z [`.github/prompts/`](.github/prompts/) uruchamiają konkretną 
 | `/sdd-demo`        | spec-driven development showcase                     |
 | `/refine`          | dopracuj surowy prompt przed wysłaniem (read-only)   |
 
-Inne hosty MCP (Claude Desktop, Cursor, custom Agent SDK) czytają `AGENTS.md` + `.github/copilot-instructions.md` jako fallback gdy nie wspierają custom chat modes.
+Inne hosty MCP (Claude Desktop, Cursor, custom Agent SDK) czytają `AGENTS.md` + `.github/copilot-instructions.md` jako fallback gdy nie wspierają custom agentów.
 
 ## MCP Prompts — preconfigured slash-commands
 

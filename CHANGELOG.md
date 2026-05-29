@@ -6,7 +6,7 @@ All notable changes are documented here. Format: [Keep a Changelog](https://keep
 
 ### Added
 
-- **`.github/chatmodes/orchestrator.chatmode.md`** — jedyny widoczny custom chat mode w VS Code Copilot picker. Routuje high-level zadania do siedmiu wewnętrznych personas (architect, app-scaffolder, integrator, tool-author, security-auditor, test-engineer, dependency-curator) które są teraz ładowane z `.github/agents/` jako system-prompt-w-locie, bez eksponowania w UI pickerze. Świadoma decyzja: prostsze UX dla użytkownika końcowego.
+- **Custom agents (VS Code Copilot) — jeden widoczny `orchestrator`.** `.github/agents/orchestrator.agent.md` to jedyny agent w pickerze; 7 specjalistów (architect, app-scaffolder, integrator, tool-author, security-auditor, test-engineer, dependency-curator) ma `user-invocable: false` i jest wołanych jako subagenci (tool `agent`). Discovery: `chat.agentFilesLocations` → `.github/agents/` w `.vscode/settings.json`. Świadoma decyzja: prostsze UX dla użytkownika końcowego.
 - **`.github/workflows/release.yml`** — workflow publikujący `@nowiro/mcp-devtools` na npm registry przy push tagów `v*`. Uses `npm publish --provenance --access public` (SLSA-3-grade attestation). Pre-flight: repo owner ustawia secret `NPM_TOKEN` (Automation token scoped do `@nowiro` org).
 - **`README.md`** — sekcja "Uruchomienie bez klonowania (npx)" pokazująca `mcp.json` snippet z `npx -y -p @nowiro/mcp-devtools mcp-devtools` dla VS Code Copilot Chat oraz Claude Desktop / Cursor. Bez `git clone`, bez `npm install`, bez `npm run build` po stronie usera.
 - **MCP Resources** (`resources/list` + `resources/read`) — serwer eksponuje read-only docs ładowane przez Copilot jako deterministyczny kontekst. URIs: `mcp-devtools://docs/{analyze-findings-catalog,compliance-rules-spec,propose-fix-context-guide}`. Parity z `mcp-alm` — ta sama shape definicji, mirror użycia w Copilot Chat (`#mcp.resource`).
@@ -28,7 +28,7 @@ All notable changes are documented here. Format: [Keep a Changelog](https://keep
 
 ### Removed
 
-- **`.github/agents/orchestrator.agent.md`** — treść przeniesiona do `.github/chatmodes/orchestrator.chatmode.md` (jedyne źródło prawdy dla orchestrator persona). Pozostałe pliki `.github/agents/*.agent.md` żyją dalej jako wewnętrzne persony ładowane przez orchestrator.
+- **`.github/chatmodes/orchestrator.chatmode.md`** — usunięty po rename VS Code „custom chat modes → custom agents". Orchestrator żyje teraz jako `.github/agents/orchestrator.agent.md`; katalog `.github/chatmodes/` skasowany.
 
 ### Changed
 
