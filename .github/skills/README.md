@@ -62,12 +62,11 @@ oraz to, że skille leżą w podkatalogach (nie luzem jako flat `*.md`). Logika 
 
 ## Stan w tym repo
 
-Dziś: **brak skilli** — katalog zawiera tylko ten README. Kandydaci do portu z `.github/prompts/`
-→ skill (reusable, model-decided, mogą wołać skrypty), gdy zdecydujemy się ruszyć:
+Aktywne skille (auto-discovered, **read-first** — sandbox `PROJECT_ROOT`, bez wyjścia poza repo):
 
-- **analyze-code triage** — interpretacja outputu `analyze_code` (severity grouping, framework hints).
-- **propose-fix workflow** — przygotowanie kontekstu pod `propose_fix` + sandbox guardrails.
-- **playwright sanity** — szybki run end-to-end (parytet z krokiem z `/sdd-demo`).
+- **[analyze-code-triage](analyze-code-triage/SKILL.md)** — triage outputu `analyze_code` (severity grouping, framework hints).
+- **[propose-fix](propose-fix/SKILL.md)** — pakiet kontekstu pod `propose_fix` + sandbox guardrails; propozycja minimalnej poprawki.
+- **[playwright-sanity](playwright-sanity/SKILL.md)** — szybki, zawężony run e2e przez `run_playwright` (parytet z krokiem `/sdd-demo`).
 
 Powiązanie z SDD/CDK: w Fazie 2 ([`docs/explanation/sdd-architecture.md`](../explanation/sdd-architecture.md))
 warto rozważyć dodatkowy target kompilacji `npx mcp-devtools-cdk compile` → `SKILL.md` (obok/zamiast
