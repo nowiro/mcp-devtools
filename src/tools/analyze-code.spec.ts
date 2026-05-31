@@ -189,7 +189,7 @@ describe('analyze_code handler — framework=none', () => {
   beforeEach(async () => {
     _resetCache();
     directory = await mkdtemp(nodePath.join(tmpdir(), 'analyze-code-none-'));
-    await writeFile(nodePath.join(directory, 'plain.ts'), `console.log('x');\n// FIXME: refactor this\n`);
+    await writeFile(nodePath.join(directory, 'plain.ts'), `console.log('x');\ndebugger;\n// FIXME: refactor this\n`);
   });
 
   afterEach(async () => {
@@ -216,5 +216,13 @@ describe('analyze_code handler — framework=none', () => {
     );
     expect(out.findings.some((f) => f.kind === 'console-log')).toBe(true);
     expect(out.findings.some((f) => f.kind === 'todo')).toBe(true);
+  });
+
+  it('emits a debugger finding for a leftover debugger; statement', async () => {
+    const out = await definition.handle(
+      { path: directory, depth: 3, metrics: true, framework: 'none' },
+      { ...testContext, projectRoot: directory },
+    );
+    expect(out.findings.some((f) => f.kind === 'debugger')).toBe(true);
   });
 });

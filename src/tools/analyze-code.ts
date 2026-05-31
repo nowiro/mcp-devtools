@@ -76,7 +76,7 @@ export const Output = z.object({
   framework: z.enum(['angular', 'react', 'vue', 'none']),
   findings: z.array(
     z.object({
-      kind: z.enum(['console-log', 'legacy-pattern', 'todo', 'dangerous-html']),
+      kind: z.enum(['console-log', 'legacy-pattern', 'todo', 'dangerous-html', 'debugger']),
       severity: z.enum(['info', 'warning', 'error']),
       file: z.string(),
       line: z.number().int().min(1).optional(),
@@ -217,6 +217,7 @@ export function countVueMetrics(text: string, isSfc: boolean): VueMetrics {
 // ── Findings detectors ─────────────────────────────────────────────────────
 
 const CONSOLE_RE = /\bconsole\.(log|warn|error|debug|info)\b/;
+const DEBUGGER_RE = /\bdebugger\b\s*;/;
 const TODO_RE = /\b(TODO|FIXME|XXX|HACK)\b[:\s]/;
 const ANGULAR_LEGACY_RE = /\*ngIf|\*ngFor|\*ngSwitch/;
 
@@ -236,6 +237,15 @@ function scanLines(
         file,
         line: i + 1,
         msg: 'console.* call — prefer structured logger',
+      });
+    }
+    if (DEBUGGER_RE.test(line)) {
+      findings.push({
+        kind: 'debugger',
+        severity: 'warning',
+        file,
+        line: i + 1,
+        msg: 'leftover debugger statement — remove before commit',
       });
     }
     if (TODO_RE.test(line)) {
@@ -275,7 +285,7 @@ function scanLines(
 export const definition: ToolDefinition<InputT, OutputT> = {
   name: 'analyze_code',
   description:
-    'Static analysis of a TS/TSX/JS/JSX/HTML/Vue tree (slow O(files × depth), capped at depth=5). Reports generic findings (console.*, TODO/FIXME, dangerouslySetInnerHTML) + per-framework metrics + legacy patterns. Frameworks: angular/react/vue (auto-detected). mtime-cached — cache hits are O(1).',
+    'Static analysis of a TS/TSX/JS/JSX/HTML/Vue tree (slow O(files × depth), capped at depth=5). Reports generic findings (console.*, debugger, TODO/FIXME, dangerouslySetInnerHTML) + per-framework metrics + legacy patterns. Frameworks: angular/react/vue (auto-detected). mtime-cached — cache hits are O(1).',
   inputSchema: Input,
   outputSchema: Output,
   async handle(input, ctx) {
