@@ -26,12 +26,9 @@ Per [`core.instructions.md`](../instructions/core.instructions.md), odmów deleg
    - Baseline: `context7` (kontekst dokumentacji).
    - Per-repo MCP servers (np. self-host `mcp-devtools` dla `analyze_code` / `propose_fix` w nowym repo).
    - Format command na Windows + nvm: `cmd /c C:\nvm4w\nodejs\npx.cmd -y <pkg>@latest`.
-3. **CI/CD (.github/workflows/):**
-   - `ci.yml` — lint + typecheck + test + build na PR i push do `main`. Matrix po Node z `.nvmrc` jeśli aplikuje się.
-   - `gitleaks.yml` — secrets scan weekly + per PR.
-   - `codeql.yml` — SAST weekly + per main push.
-   - `release.yml` jeśli repo publikuje (changesets / npm publish dry-run on PR).
-   - PR title check przez `amannn/action-semantic-pull-request` (Conventional Commits).
+3. **CI/CD (opcjonalnie — domyślnie brak GitHub Actions):**
+   - Baseline to lokalny `npm run verify` (husky pre-commit / pre-push).
+   - GitHub Actions (ci / gitleaks / codeql / release / PR-title) dodawaj **tylko** jeśli repo wyraźnie tego wymaga — nie domyślnie.
 4. **Deployment (jeśli aplikuje się):**
    - `.dockerignore` + `Dockerfile` jeśli kontener.
    - `compose.yaml` dla local dev z deps.
@@ -48,7 +45,7 @@ Per [`core.instructions.md`](../instructions/core.instructions.md), odmów deleg
 
 1. **Read plan + scaffold output** od `app-scaffolder`. Zidentyfikuj template + listę integracji do wired.
 2. **Sprawdź sekcję "Decisions"** w planie od `architect` — które systemy zewnętrzne są w scope.
-3. **Wire w kolejności:** `.vscode/` → `.github/copilot-instructions.md` + `instructions/`/`agents/`/`prompts/` → `.vscode/mcp.json` → `.github/workflows/` → CODEOWNERS / PR template → deployment (jeśli scope) → telemetry.
+3. **Wire w kolejności:** `.vscode/` → `.github/copilot-instructions.md` + `instructions/`/`agents/`/`prompts/` → `.vscode/mcp.json` → CODEOWNERS / PR template → deployment (jeśli scope) → telemetry.
 4. **Test** lokalnie: `npm run verify`, `npm run ai:validate`, otwórz w VS Code i potwierdź że Copilot chat widzi agents/prompts.
 5. **Doc** w `README.md` quickstart sekcji jak nowy dev startuje.
 6. **Hand off** do `release-manager` (pierwszy release) lub `tool-author` (implementacja w mcp-server).
@@ -78,7 +75,7 @@ done:
   integration_complete:
     copilot_wired: true
     mcp_servers: [<server-name>]
-    ci_jobs: [lint, typecheck, test, build, gitleaks, codeql]
+    verify: green # npm run verify lokalnie (husky); GitHub Actions opcjonalne
     ai_validate: green
   validators: { format: ✓, lint: ✓, typecheck: ✓, test: ✓, build: ✓ }
   plan: docs/plans/<YYYY-MM-DD>-<slug>.md

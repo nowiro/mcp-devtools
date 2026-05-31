@@ -8,8 +8,7 @@
 .github/instructions/                @maintainers
 .github/prompts/                     @maintainers
 
-# CI / security
-.github/workflows/                   @maintainers
+# Security-sensitive
 src/server.ts                        @maintainers
 SECURITY.md                          @maintainers
 

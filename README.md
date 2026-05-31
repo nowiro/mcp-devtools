@@ -298,7 +298,6 @@ npm run workflow:audit-sandbox
 #   absolute path literals, fs.realpath.
 # Auto-whitelist plików używających assertWithinSandbox helper.
 # Output: docs/runs/<date>-audit-sandbox.md, exit 1 na high findings.
-# CI-ready — można dodać step w .github/workflows/ci.yml.
 
 npm run workflow:audit-sandbox -- --strict   # exit 1 na każde finding (nie tylko high)
 npm run workflow:audit-sandbox -- --json     # JSON output dla pipeline integration

@@ -6,7 +6,7 @@ tools: ['editFiles', 'search', 'runCommands', 'runTasks', 'problems']
 
 # Release
 
-Uruchamia release workflow dla mcp-devtools. Działa identycznie na Windows (PowerShell) i macOS/Linux (bash/zsh) — wszystkie kroki używają `npm` + `git`.
+Uruchamia proces release dla mcp-devtools — **lokalnie, repo nie używa GitHub Actions**. Działa identycznie na Windows (PowerShell) i macOS/Linux (bash/zsh) — wszystkie kroki używają `npm` + `git`.
 
 ## Inputs
 
@@ -27,7 +27,7 @@ Uruchamia release workflow dla mcp-devtools. Działa identycznie na Windows (Pow
 4. Update `package.json` version.
 5. Commit `chore(release): vX.Y.Z` (Conventional Commits, no `[skip ci]`).
 6. Tag `vX.Y.Z` (annotated, z release notes w message).
-7. Push commita i tag — publish workflow handluje npm publish + GitHub Release.
+7. Push commita i tag: `git push && git push --tags`. **Publikacja jest ręczna** (brak GitHub Actions) — `npm publish --provenance --access public` (wymaga `npm login` / `NPM_TOKEN` w env). GitHub Release utwórz ręcznie, jeśli chcesz.
 8. End-of-turn: blok `done:` z nową wersją i link do release page.
 
 ## Nie

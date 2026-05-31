@@ -40,7 +40,7 @@ Per [`core.instructions.md`](../instructions/core.instructions.md), odmów deleg
 - **Write-guard / apply-flag** — mutujące tools tylko gdy `input.apply === true`. Default = dry-run zwracający planned change.
 - **Secrets handling** — tokens NIGDY w tracked files. Env vars + `<home>/.config/<repo>/config.json`. Logger redaktuje `authorization` header + token-like keys.
 - **STRIDE per asset** — assets to nie tylko fields, ale też trust boundaries (auth start, validation end, IPC boundaries).
-- **Supply chain** — gitleaks weekly + per-PR diff, CodeQL weekly + per main push, `npm audit` w CI bramkuje high/critical.
+- **Supply chain** — `npm run audit:prod` (`npm audit`, high/critical) lokalnie / przed release; secret scanning zalecany (natywny GitHub secret scanning / push protection). Repo nie używa GitHub Actions.
 
 ## Hard rules
 

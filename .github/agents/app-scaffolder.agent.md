@@ -42,7 +42,7 @@ Jeśli stack nie pasuje do żadnego templatu — **stop**, eskaluj do `architect
    - `.github/agents/` (per-agent custom modes — VS Code 1.121+ format).
 5. **Deterministic scripts** w `tools/scripts/`: minimum `bootstrap.mjs`, `doctor.mjs`, `validate-ai-config.mjs`.
 6. **Docs skeleton:** `README.md` (one-screen quickstart), `SECURITY.md`, `CHANGELOG.md` (Keep a Changelog), `CONTRIBUTING.md`, `SUPPORT.md`.
-7. **CI:** `.github/workflows/ci.yml` (lint + typecheck + test + build na PR i `main`), gitleaks weekly, codeql weekly.
+7. **CI (opcjonalnie):** baseline to lokalny `npm run verify` (husky pre-commit / pre-push). GitHub Actions (ci / gitleaks / codeql) tylko jeśli repo wyraźnie tego wymaga — nie domyślnie.
 8. **License:** MIT default jeśli `architect` nie wskazał inaczej.
 
 ## Workflow
@@ -59,7 +59,7 @@ Jeśli stack nie pasuje do żadnego templatu — **stop**, eskaluj do `architect
    6. Template-specific code.
    7. Tests skeleton z minimum 1 sample test (musi pass).
    8. Docs (`README`, `SECURITY`, `CHANGELOG`, `CONTRIBUTING`, `SUPPORT`).
-   9. CI (`.github/workflows/ci.yml`).
+   9. (Opcjonalnie) CI — domyślnie wystarcza lokalny `npm run verify`; GitHub Actions tylko na życzenie.
    10. `.gitignore`, `.editorconfig`, `CODEOWNERS`.
 5. **Run** `npm install` + `npm run bootstrap` + `npm run verify`. Jeśli czerwone — fix, nie hand-off broken state.
 6. **Hand off** do `integrator` (Copilot wiring, MCP, CI) i `tool-author` (jeśli repo to MCP server).
