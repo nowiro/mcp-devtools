@@ -10,7 +10,7 @@ import { defineConfig } from 'vitest/config';
  */
 export default defineConfig({
   test: {
-    include: ['src/**/*.spec.ts'],
+    include: ['src/**/*.spec.ts', 'tools/**/*.spec.ts'],
     exclude: ['node_modules', 'dist', 'coverage'],
     environment: 'node',
     reporters: process.env['CI'] ? ['default', 'junit'] : ['default'],
@@ -31,12 +31,12 @@ export default defineConfig({
         'src/cdk/workflows/**',
       ],
       thresholds: {
-        // Niskie progi startowe — podnieść po zmierzeniu baseline.
-        // Cel: shared/ i tools/ ≥ 80%, całość ≥ 70%.
-        lines: 50,
-        functions: 50,
-        branches: 50,
-        statements: 50,
+        // Zmierzony floor (2026-05-31, ~72% lines) — blokuje regresję poniżej obecnego pokrycia.
+        // Cel długoterminowy: shared/ + tools/ ≥ 80%, całość ≥ 70%.
+        lines: 68,
+        functions: 62,
+        branches: 58,
+        statements: 64,
       },
     },
   },

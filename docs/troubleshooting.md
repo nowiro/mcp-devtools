@@ -25,7 +25,7 @@
 **Cause.** High-severity CVE w deps.
 **Fix.** Upgrade do patched wersji albo, jeśli dep nieużywany, usuń. Last resort: `npm overrides` w `package.json`.
 
-### Gitleaks secret-scan fails
+### Secret scanning flaguje sekret
 
-**Cause.** Diff / history zawiera string pasujący do credential pattern.
-**Fix.** Read gitleaks output (file:line). Jeśli real — **rotuj sekret** i `git filter-repo`. Jeśli false positive — dodaj `gitleaks:allow` inline lub `.gitleaks.toml` allow-list.
+**Cause.** Diff / historia zawiera string pasujący do credential pattern (natywny GitHub secret scanning / push protection — repo nie używa gitleaks-action).
+**Fix.** Jeśli real — **rotuj sekret** i wyczyść historię (`git filter-repo`). Jeśli false positive — dismiss w UI GitHub secret scanning albo dodaj wyjątek do pattern config.

@@ -15,7 +15,7 @@ Per [`core.instructions.md`](../instructions/core.instructions.md), odmów deleg
 ## Default loop
 
 1. Załaduj plan + relevant rules:
-   - [`security.instructions.md`](../instructions/security.instructions.md) — supply chain, gitleaks
+   - [`security.instructions.md`](../instructions/security.instructions.md) — supply chain, secret scanning
    - [`principles.instructions.md`](../instructions/principles.instructions.md) — YAGNI, KISS
 2. **Dla nowej dep** (request od `tool-author` / `architect`):
    - Sprawdź czy **już istnieje** w `package.json` (utility duplicate).

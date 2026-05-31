@@ -67,9 +67,9 @@ score = floor(passCount / totalRules * 100)
 
 ### `format: "sarif"`
 
-Output zawiera `sarif: { ... }` zgodne z SARIF 2.1.0 — gotowe do uploadu w GitHub
-Code Scanning (`github/codeql-action/upload-sarif`). `findings` array nadal jest
-w response — SARIF to bonus dla CI surfaces.
+Output zawiera `sarif: { ... }` zgodne z SARIF 2.1.0 — gotowe do konsumpcji przez
+dowolne narzędzie SARIF (GitHub Code Scanning, IDE, viewer). `findings` array nadal
+jest w response — SARIF to bonus.
 
 ## Przykłady reguł
 

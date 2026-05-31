@@ -113,3 +113,32 @@ spec+plan+stub  w specu           spec ↔ plan ↔ kod    pisze kod
 waliduje strukturę — frontmatter, wymagane sekcje, tabelę zadań i traceability
 `plan.new-tool.<slug>` → `spec.md` — oraz wymusza „non-draft spec bez `[?]`". `/clarify` i `/analyze`
 (warstwa semantyczna) stoją na tej bramce. Inspiracja: spec-kit `/speckit.clarify` + `/speckit.analyze`.
+
+## 7. Faza 2 — plan wykonawczy
+
+Faza 2 implementuje **Workflow #1 (scaffold aplikacji)** end-to-end: graf Constructs kompiluje się
+do `sdd-scaffold-app.prompt.md`, który Copilot wykonuje krok po kroku.
+
+### Zakres
+
+- **~9 production Constructs** (zastępują stuby z Fazy 0), odwzorowujące graf z §3:
+  `ConfluencePage → Spec → AngularMaterialMap → NxScaffold → MaterialWrapper × N → Tests →
+PlaywrightRun → Publish` (+ Construct walidacyjny / glue). Każdy `synth()` emituje realne
+  `SynthStep[]` (`mcp_call` / `llm_reason` / `user_input`). Dokładny kształt — finalizowany na
+  kickoffie Fazy 2 (regenerujemy, bo ryzyko inne niż w Fazie 1).
+- **~6 nowych MCP tools** zasilających kroki `mcp_call` Workflow #1 (odczyt źródła specu, mapowanie
+  Material, scaffold Nx, run testów, …). Kontrakt jak istniejące 5: Zod I/O + sandbox + `_meta`
+  envelope. Każde przez pipeline `/new-tool → /clarify → /analyze` z §6.
+
+### Decyzja: CDK → `SKILL.md`?
+
+Kompilator emituje dziś `.prompt.md` (slash-command). `Workflow.trigger` mapuje się 1:1 na
+`name` + `description` skilla. **Rekomendacja:** dodać emiter `SKILL.md` **obok** `.prompt.md` (nie
+zamiast) w `src/cdk/core/render.ts` — workflowy model-decided lepiej pasują do grafu Construct niż
+ręcznie wołane slash-commands. spec-kit poszedł tą drogą (`--integration-options="--skills"`).
+
+### Entry criteria
+
+- Spec Fazy 2 napisany przez pipeline z §6 (dogfooding `/new-tool → /clarify → /analyze`).
+- Odświeżyć ryzyka: subprocess management (Nx / Playwright), Angular Material API drift, rozmiar
+  grafu vs budżet tokenów promptu.
