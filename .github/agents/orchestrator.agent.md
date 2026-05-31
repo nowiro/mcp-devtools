@@ -51,6 +51,8 @@ Jeśli user wie czego chce i nie potrzebuje routingu, [`.github/prompts/`](../pr
 - `/release` — release flow (bump + CHANGELOG + tag)
 - `/security-review` — security audit bieżącego diffu
 - `/sdd-demo` — spec-driven development showcase
+- `/clarify` — domknij `[?]` w `docs/specs/<slug>/spec.md` przez Q&A (krok przed `/analyze`)
+- `/analyze` — cross-artifact SDD check (spec↔plan↔kod) przed `/implement`
 - `/refine` — dopracuj surowy prompt przed wysłaniem (read-only)
 
 ## Plan-first

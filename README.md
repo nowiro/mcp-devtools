@@ -220,15 +220,17 @@ orchestrator → architect (ADR + plan)
 
 Slash-commands z [`.github/prompts/`](.github/prompts/) uruchamiają konkretną ścieżkę bez routingu przez orchestrator:
 
-| Slash command      | Co robi                                              |
-| ------------------ | ---------------------------------------------------- |
-| `/new-tool`        | tool-author tworzy nowe narzędzie MCP w `src/tools/` |
-| `/audit-sandbox`   | security-auditor (sandbox + path traversal review)   |
-| `/diagnose`        | propose-fix workflow dla failing testu               |
-| `/release`         | release flow (bump wersji + CHANGELOG + tag)         |
-| `/security-review` | security audit bieżącego diffu                       |
-| `/sdd-demo`        | spec-driven development showcase                     |
-| `/refine`          | dopracuj surowy prompt przed wysłaniem (read-only)   |
+| Slash command      | Co robi                                                     |
+| ------------------ | ----------------------------------------------------------- |
+| `/new-tool`        | tool-author tworzy nowe narzędzie MCP w `src/tools/`        |
+| `/audit-sandbox`   | security-auditor (sandbox + path traversal review)          |
+| `/diagnose`        | propose-fix workflow dla failing testu                      |
+| `/release`         | release flow (bump wersji + CHANGELOG + tag)                |
+| `/security-review` | security audit bieżącego diffu                              |
+| `/sdd-demo`        | spec-driven development showcase                            |
+| `/clarify`         | domknij `[?]` w specie przez Q&A (krok przed `/analyze`)    |
+| `/analyze`         | cross-artifact SDD check (spec↔plan↔kod) przed `/implement` |
+| `/refine`          | dopracuj surowy prompt przed wysłaniem (read-only)          |
 
 Inne hosty MCP (Claude Desktop, Cursor, custom Agent SDK) czytają `AGENTS.md` + `.github/copilot-instructions.md` jako fallback gdy nie wspierają custom agentów.
 

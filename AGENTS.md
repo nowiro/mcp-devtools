@@ -39,7 +39,7 @@ Pełen rulebook → [`.github/copilot-instructions.md`](.github/copilot-instruct
 5. **Sandbox FS.** Każda ścieżka z `input` przez `assertWithinSandbox(path, ctx.projectRoot, '<tool>')`. Path traversal → throw przed I/O.
 6. **Zod wszędzie** na granicach narzędzi — brak `any`.
 7. **Mutating ops** wymagają `apply: true` w input (default: dry-run).
-8. **DoD = `npm run verify`** (format + lint + typecheck + test + build + ai:validate).
+8. **DoD = `npm run verify`** (format + lint + typecheck + test + build + ai:validate + validate:inputs + sdd:check).
 9. **Conventional Commits** — husky commit-msg + commitlint enforce.
 
 ## Custom agents (VS Code Copilot)
@@ -66,7 +66,9 @@ Pełen rulebook → [`.github/copilot-instructions.md`](.github/copilot-instruct
 
 ### Power-user shortcuts
 
-Slash-commands w [`.github/prompts/`](.github/prompts/) (`/new-tool`, `/audit-sandbox`, `/diagnose`, `/release`, `/security-review`, `/sdd-demo`, `/refine`) uruchamiają konkretną ścieżkę bez przechodzenia przez orchestratora — dla power userów którzy wiedzą co chcą.
+Slash-commands w [`.github/prompts/`](.github/prompts/) (`/new-tool`, `/audit-sandbox`, `/diagnose`, `/release`, `/security-review`, `/sdd-demo`, `/clarify`, `/analyze`, `/refine`) uruchamiają konkretną ścieżkę bez przechodzenia przez orchestratora — dla power userów którzy wiedzą co chcą.
+
+SDD per-tool to triada `/new-tool → /clarify → /analyze → /implement` (artefakty `docs/specs/` + `docs/plans/`, bramka `npm run sdd:check`) — szczegóły w [`docs/explanation/sdd-architecture.md`](docs/explanation/sdd-architecture.md) §6.
 
 VS Code odkrywa agentów z `.github/agents/` (ustawione w [`.vscode/settings.json`](.vscode/settings.json) przez `chat.agentFilesLocations`). Inne hosty MCP czytają `AGENTS.md` + `.github/copilot-instructions.md` jako fallback.
 

@@ -21,7 +21,7 @@ Klient: **GitHub Copilot** w VS Code ≥ 1.121, IntelliJ ≥ 2026.1.2, Eclipse (
 - ✅ Narzędzia deterministyczne dla swoich inputs.
 - ✅ Każdy input walidowany Zod na granicy narzędzia (brak `any`).
 - ✅ Każde narzędzie czytające FS przechodzi przez `assertWithinSandbox(path, ctx.projectRoot, '<tool>')`.
-- ✅ DoD przed "done": `npm run verify` (format + lint + typecheck + test + build + ai:validate).
+- ✅ DoD przed "done": `npm run verify` (format + lint + typecheck + test + build + ai:validate + validate:inputs + sdd:check).
 - ❌ Nie zgaduj ścieżek / nazw funkcji / wersji.
 - ❌ Nie bypass git hooków (`--no-verify`).
 - ❌ Sekrety w tracked file — never.

@@ -89,3 +89,27 @@ Risks i open questions dla Fazy 2 będą odnowione gdy zaczniemy implementację 
 constructs i nowe MCP tools mają inne ryzyko niż Faza 1 (subprocess management,
 Angular Material API drift, etc.). Status fazy w sekcji 0. Acceptance history
 w `CHANGELOG.md`.
+
+## 6. Spec-artifact pipeline (lekka ścieżka, niezależna od CDK)
+
+Obok frameworku CDK (sekcje 1–5) repo ma **lżejszą ścieżkę SDD per-tool**, działającą wprost na
+plikach `docs/specs/` + `docs/plans/`, którą scaffolduje `tools/scripts/workflow-new-tool.mjs`. Nie
+kompiluje się przez `mcp-devtools-cdk` — to czyste artefakty Markdown + prompty Copilota.
+
+```
+/new-tool   →   /clarify     →   /analyze        →   /implement
+scaffold        domknij [?]       spójność            tool-author
+spec+plan+stub  w specu           spec ↔ plan ↔ kod    pisze kod
+```
+
+| Krok                                  | Co robi                                                                                                  | Artefakt              |
+| ------------------------------------- | -------------------------------------------------------------------------------------------------------- | --------------------- |
+| `/new-tool` (`workflow-new-tool.mjs`) | scaffold `docs/specs/<slug>/spec.md` (z `[?]`), `docs/plans/<date>-new-tool-<slug>.md`, tool + spec stub | spec + plan + stub    |
+| `/clarify`                            | Q&A domykające `[?]`, dopisuje `## Clarifications`, flip `status: draft → clarified`                     | uzupełniony `spec.md` |
+| `/analyze`                            | cross-artifact consistency (pokrycie AC, dryf kodu) — odpala najpierw `sdd:check`                        | raport go / no-go     |
+| `/implement`                          | tool-author wypełnia `src/tools/<slug>.ts` + rejestruje w `server.ts`                                    | kod + testy           |
+
+**Bramka deterministyczna:** `tools/scripts/validate-sdd.mjs` (`npm run sdd:check`, wpięte w `verify`)
+waliduje strukturę — frontmatter, wymagane sekcje, tabelę zadań i traceability
+`plan.new-tool.<slug>` → `spec.md` — oraz wymusza „non-draft spec bez `[?]`". `/clarify` i `/analyze`
+(warstwa semantyczna) stoją na tej bramce. Inspiracja: spec-kit `/speckit.clarify` + `/speckit.analyze`.

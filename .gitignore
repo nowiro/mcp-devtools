@@ -28,3 +28,10 @@ test-results/
 /.config/
 /secrets/
 *.secret.*
+
+# SDD working artifacts — plans, specs and run/report outputs are kept LOCAL
+# only, never committed (project decision). The workflow:* scaffold scripts
+# recreate these dirs on demand; validate-sdd passes vacuously when absent.
+/docs/plans/
+/docs/specs/
+/docs/runs/
